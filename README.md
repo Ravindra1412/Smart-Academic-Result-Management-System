@@ -16,7 +16,7 @@ A web-based system to manage and analyze student academic results efficiently.
 
 ## ▶️ How to Run
 1. Download or clone the project
-2. Open `index.html` in browser
+2. Open `Final2.html` in browser
 
 ## 📷 Screenshots
 <img width="1366" height="640" alt="image" src="https://github.com/user-attachments/assets/54f667da-d359-4fcb-9b8f-c70e832c2452" />
