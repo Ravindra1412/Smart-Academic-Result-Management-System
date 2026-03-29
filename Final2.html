@@ -1,0 +1,3722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduResult Pro — React Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+/* ── RESET & TOKENS ─────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#03050f;
+  --bg2:#060a1a;
+  --surf:#0b1023;
+  --surf2:#101628;
+  --surf3:#161e36;
+  --border:#1c2540;
+  --border2:#263060;
+  --ink:#dde4f8;
+  --ink2:#8a96c0;
+  --muted:#42507a;
+  --blue:#4d8dff;
+  --blue-glow:rgba(77,141,255,.18);
+  --cyan:#00d4b4;
+  --cyan-glow:rgba(0,212,180,.15);
+  --violet:#9d6ff5;
+  --violet-glow:rgba(157,111,245,.15);
+  --rose:#f5476b;
+  --amber:#f5a623;
+  --green:#12c98a;
+  --r:14px;--rs:9px;--rxs:5px;
+  --mono:'DM Mono',monospace;
+  --shadow:0 4px 32px rgba(0,0,0,.5);
+  --shadow-lg:0 16px 64px rgba(0,0,0,.6);
+}
+body.light{
+  --bg:#f0f3fc;--bg2:#e8ecf8;--surf:#fff;--surf2:#f4f6ff;--surf3:#edf0fc;
+  --border:#d0d7f0;--border2:#bbc4e8;--ink:#0a1228;--ink2:#3a4470;--muted:#7880a8;
+  --shadow:0 4px 24px rgba(61,100,255,.08);--shadow-lg:0 12px 48px rgba(61,100,255,.12);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px;}
+input,select,button,textarea{font-family:'Syne',sans-serif;}
+
+/* ── GLOBAL ANIMATIONS ──────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,212,180,.4)}50%{box-shadow:0 0 0 8px rgba(0,212,180,0)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes countUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes borderGlow{0%,100%{box-shadow:0 0 0 0 var(--blue-glow)}50%{box-shadow:0 0 20px 4px var(--blue-glow)}}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes morphBg{
+  0%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}
+  50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}
+  100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}
+}
+@keyframes particleDrift{
+  0%{transform:translateY(0) translateX(0) scale(1);opacity:.6}
+  50%{transform:translateY(-40px) translateX(20px) scale(1.2);opacity:.3}
+  100%{transform:translateY(-80px) translateX(-10px) scale(.8);opacity:0}
+}
+@keyframes lineGrow{from{width:0}to{width:100%}}
+@keyframes numberTick{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes waveform{
+  0%,100%{transform:scaleY(1)}
+  25%{transform:scaleY(2.5)}
+  75%{transform:scaleY(.5)}
+}
+
+.anim-fadeUp{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;}
+.anim-fadeIn{animation:fadeIn .4s ease both;}
+.anim-scaleIn{animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+.anim-slideRight{animation:slideRight .4s cubic-bezier(.22,1,.36,1) both;}
+
+/* stagger delays */
+.delay-1{animation-delay:.05s}
+.delay-2{animation-delay:.1s}
+.delay-3{animation-delay:.15s}
+.delay-4{animation-delay:.2s}
+.delay-5{animation-delay:.25s}
+.delay-6{animation-delay:.3s}
+.delay-7{animation-delay:.35s}
+.delay-8{animation-delay:.4s}
+
+/* ── BACKGROUND FX ──────────────────────────────────── */
+.bg-orb{
+  position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);
+  animation:float 8s ease-in-out infinite;
+}
+.bg-orb-1{width:500px;height:500px;top:-100px;right:-100px;background:radial-gradient(circle,rgba(77,141,255,.08),transparent 70%);animation-delay:-2s;}
+.bg-orb-2{width:400px;height:400px;bottom:-80px;left:-80px;background:radial-gradient(circle,rgba(157,111,245,.07),transparent 70%);animation-delay:-5s;}
+.bg-orb-3{width:300px;height:300px;top:40%;left:30%;background:radial-gradient(circle,rgba(0,212,180,.05),transparent 70%);animation-delay:-8s;}
+
+.bg-grid-fine{
+  position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.15;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,black 30%,transparent);
+}
+
+/* ── LOADER ─────────────────────────────────────────── */
+#root-loader{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .5s,visibility .5s;
+}
+#root-loader.done{opacity:0;visibility:hidden;pointer-events:none;}
+.loader-brand{
+  font-family:'Crimson Pro',serif;font-size:1.8rem;font-weight:600;letter-spacing:.02em;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.loader-track{width:180px;height:2px;background:var(--surf3);border-radius:4px;overflow:hidden;}
+.loader-bar{
+  height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--violet));
+  background-size:200% 100%;animation:gradientShift 1.5s linear infinite, lineGrow 1.2s cubic-bezier(.4,0,.2,1) both;
+}
+.loader-txt{font-size:.72rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;}
+
+/* ── TOAST ──────────────────────────────────────────── */
+#toast-root{position:fixed;bottom:24px;right:24px;z-index:8000;display:flex;flex-direction:column-reverse;gap:8px;}
+.toast{
+  background:var(--surf2);border:1px solid var(--border2);border-radius:var(--rs);
+  padding:12px 16px;font-size:.82rem;color:var(--ink);
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;
+  animation:slideRight .35s cubic-bezier(.22,1,.36,1) both;
+  border-left:3px solid var(--blue);min-width:240px;max-width:320px;
+  transition:opacity .3s,transform .3s;
+}
+.toast.exit{opacity:0;transform:translateX(30px);}
+
+/* ── REACT ROOT ─────────────────────────────────────── */
+#app{position:relative;z-index:1;min-height:100vh;}
+
+/* ── LANDING ────────────────────────────────────────── */
+.landing{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 24px;gap:48px;position:relative;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 18px;
+  background:var(--surf);border:1px solid var(--border2);border-radius:50px;
+  font-size:.72rem;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 2s infinite;}
+.hero-title{
+  font-family:'Crimson Pro',serif;font-size:clamp(3rem,7vw,5.5rem);font-weight:600;
+  line-height:1.02;text-align:center;
+}
+.hero-title .word{display:inline-block;overflow:hidden;}
+.hero-title .word span{display:inline-block;animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both;}
+.hero-title .accent{
+  background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 45%,var(--violet) 100%);
+  background-size:200% 200%;animation:gradientShift 4s linear infinite;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{color:var(--ink2);font-size:1rem;max-width:480px;text-align:center;line-height:1.75;font-family:'DM Mono',monospace;font-size:.85rem;}
+
+.portal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:760px;width:100%;}
+@media(max-width:640px){.portal-grid{grid-template-columns:1fr;}}
+
+.pcard{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--r);
+  padding:28px;cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),border-color .3s,box-shadow .3s;
+}
+.pcard::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),var(--glow,rgba(77,141,255,.06)),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.pcard:hover{transform:translateY(-10px) scale(1.01);border-color:var(--c,var(--blue));}
+.pcard:hover::after{opacity:1;}
+.pcard:hover{box-shadow:0 24px 64px var(--sg,rgba(77,141,255,.18));}
+.pc-icon{
+  width:48px;height:48px;border-radius:12px;background:var(--surf2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:18px;
+  transition:transform .3s,box-shadow .3s;
+}
+.pcard:hover .pc-icon{transform:rotate(-5deg) scale(1.1);box-shadow:0 8px 24px var(--sg,rgba(77,141,255,.2));}
+.pc-title{font-size:1.05rem;font-weight:700;margin-bottom:8px;}
+.pc-desc{font-size:.78rem;color:var(--ink2);line-height:1.7;}
+.pc-arrow{
+  display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-size:.78rem;
+  font-weight:600;color:var(--c,var(--blue));transition:gap .2s;
+}
+.pcard:hover .pc-arrow{gap:10px;}
+
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:680px;}
+.pill{
+  font-size:.7rem;padding:5px 13px;border-radius:50px;border:1px solid var(--border);
+  background:var(--surf);color:var(--ink2);
+  transition:border-color .2s,color .2s,transform .2s;cursor:default;
+}
+.pill:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px);}
+
+/* ── TOPBAR ─────────────────────────────────────────── */
+.topbar{
+  height:56px;background:rgba(11,16,35,.88);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;
+  padding:0 20px;gap:10px;position:sticky;top:0;z-index:100;
+  animation:slideDown .4s cubic-bezier(.22,1,.36,1) both;
+}
+body.light .topbar{background:rgba(255,255,255,.92);}
+.tb-brand{
+  font-family:'Crimson Pro',serif;font-size:1.1rem;font-weight:600;letter-spacing:.01em;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.tb-badge{
+  font-size:.62rem;font-weight:700;padding:3px 9px;border-radius:50px;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.badge-s{background:rgba(77,141,255,.12);color:var(--blue);}
+.badge-a{background:rgba(157,111,245,.12);color:var(--violet);}
+.badge-n{background:rgba(0,212,180,.12);color:var(--cyan);}
+.tb-spacer{flex:1;}
+.tb-clock{font-family:var(--mono);font-size:.72rem;color:var(--muted);}
+.tb-btn{
+  display:flex;align-items:center;gap:6px;background:var(--surf2);
+  border:1px solid var(--border);color:var(--ink2);border-radius:var(--rs);
+  padding:5px 12px;font-size:.76rem;cursor:pointer;
+  transition:all .2s;
+}
+.tb-btn:hover{border-color:var(--blue);color:var(--blue);}
+.tb-icon-btn{
+  width:34px;height:34px;border-radius:var(--rxs);background:var(--surf2);
+  border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:.9rem;transition:all .2s;position:relative;
+}
+.tb-icon-btn:hover{border-color:var(--blue);transform:scale(1.05);}
+.notif-dot{
+  position:absolute;top:-3px;right:-3px;width:14px;height:14px;
+  border-radius:50%;background:var(--rose);font-size:.52rem;
+  display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid var(--surf);
+}
+
+/* ── LOGIN ──────────────────────────────────────────── */
+.page-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;min-height:calc(100vh - 56px);}
+.page-full{display:flex;flex-direction:column;min-height:100vh;}
+.login-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--r);
+  padding:40px 44px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);
+  animation:scaleIn .45s cubic-bezier(.34,1.56,.64,1) both;
+  position:relative;overflow:hidden;
+}
+.login-card::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:200px;height:200px;border-radius:50%;pointer-events:none;filter:blur(60px);
+}
+.lc-s::before{background:var(--blue-glow);}
+.lc-a::before{background:var(--violet-glow);}
+.login-logo{
+  width:48px;height:48px;border-radius:12px;background:var(--surf2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:22px;
+  animation:float 4s ease-in-out infinite;
+}
+.login-h{font-family:'Crimson Pro',serif;font-size:1.6rem;font-weight:600;margin-bottom:5px;}
+.login-s{color:var(--ink2);font-size:.82rem;margin-bottom:28px;line-height:1.65;}
+
+/* Form elements */
+.fg{margin-bottom:14px;position:relative;}
+.fl{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;display:block;}
+.fi{
+  width:100%;background:var(--surf2);border:1.5px solid var(--border);color:var(--ink);
+  border-radius:var(--rs);padding:11px 14px;font-size:.88rem;
+  transition:border-color .2s,box-shadow .2s,transform .15s;outline:none;
+}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow);transform:scale(1.005);}
+.fi.vi:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-glow);}
+.fi.err{border-color:var(--rose)!important;animation:shake .3s cubic-bezier(.36,.07,.19,.97);}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}}
+.fi-err{font-size:.72rem;color:var(--rose);margin-top:5px;display:none;animation:fadeIn .2s ease;}
+.fi-err.show{display:block;}
+.pw-wrap{position:relative;}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;transition:color .2s;padding:2px;line-height:1;}
+.pw-toggle:hover{color:var(--ink);}
+
+.btn-primary{
+  width:100%;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;
+  border:none;border-radius:var(--rs);padding:13px;font-size:.9rem;font-weight:700;
+  cursor:pointer;letter-spacing:.03em;
+  transition:opacity .2s,transform .15s,box-shadow .2s;
+  position:relative;overflow:hidden;
+}
+.btn-primary::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.btn-primary:hover{opacity:.92;transform:translateY(-2px);box-shadow:0 10px 32px rgba(77,141,255,.3);}
+.btn-primary:hover::after{opacity:1;}
+.btn-primary:active{transform:translateY(0);}
+.btn-primary.teal{background:linear-gradient(135deg,var(--cyan),var(--blue));}
+.f-err-main{color:var(--rose);font-size:.8rem;margin-top:10px;text-align:center;animation:fadeIn .3s ease;}
+.demo-box{
+  margin-top:16px;background:var(--surf2);border:1px solid var(--border);
+  border-radius:var(--rs);padding:12px 14px;font-size:.75rem;color:var(--ink2);
+  line-height:1.9;font-family:var(--mono);
+}
+.demo-box strong{color:var(--cyan);}
+
+/* PW strength */
+.pw-strength{margin-top:6px;}
+.pw-bar-row{display:flex;gap:3px;margin-bottom:4px;}
+.pw-seg{height:3px;flex:1;border-radius:2px;background:var(--border);transition:background .3s,transform .3s;}
+.pw-seg.lit{transform:scaleY(1.5);}
+.pw-label{font-size:.7rem;color:var(--muted);}
+
+/* ── ADMIN LAYOUT ───────────────────────────────────── */
+.admin-shell{display:flex;height:calc(100vh - 56px);overflow:hidden;}
+.sidebar{
+  width:204px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--border);
+  padding:14px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;
+  animation:slideRight .4s cubic-bezier(.22,1,.36,1) both;
+}
+.sb-sect{font-size:.6rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;padding:10px 8px 4px;font-weight:600;}
+.sb-item{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;
+  border-radius:var(--rxs);cursor:pointer;font-size:.82rem;color:var(--muted);
+  transition:background .15s,color .15s,transform .15s;position:relative;
+  overflow:hidden;
+}
+.sb-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--violet);transform:scaleY(0);transition:transform .2s;border-radius:0 2px 2px 0;}
+.sb-item:hover{background:var(--surf2);color:var(--ink);transform:translateX(2px);}
+.sb-item.on{background:rgba(157,111,245,.08);color:var(--violet);font-weight:700;}
+.sb-item.on::before{transform:scaleY(1);}
+.sb-ico{font-size:.9rem;width:18px;text-align:center;}
+.sb-badge{
+  margin-left:auto;background:rgba(157,111,245,.15);color:var(--violet);
+  font-size:.6rem;padding:1px 6px;border-radius:50px;font-weight:700;
+}
+
+.admin-main{flex:1;overflow-y:auto;padding:22px;}
+.a-sect{display:none;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+.a-sect.on{display:block;}
+.a-title{
+  font-family:'Crimson Pro',serif;font-size:1.4rem;font-weight:600;margin-bottom:18px;
+  display:flex;align-items:center;gap:10px;
+}
+.a-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+/* ── CARDS & TABLES ─────────────────────────────────── */
+.card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--r);
+  transition:border-color .2s,box-shadow .2s,transform .2s;
+}
+.card:hover{border-color:var(--border2);}
+.card-hdr{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-hdr-title{font-size:.82rem;font-weight:700;letter-spacing:.02em;}
+.card-body{padding:16px 18px;}
+
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 12px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 12px;font-size:.82rem;border-bottom:1px solid var(--border);transition:background .15s;}
+tr:hover td{background:var(--surf2);}
+tr:last-child td{border-bottom:none;}
+tr{animation:fadeIn .3s ease both;}
+
+/* ── STAT CARDS ─────────────────────────────────────── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--r);
+  padding:18px;position:relative;overflow:hidden;
+  transition:transform .25s,border-color .2s,box-shadow .2s;
+}
+.stat-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:var(--shadow);}
+.stat-card::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;
+  background:radial-gradient(circle at 80% 20%,var(--blue-glow),transparent 60%);
+}
+.stat-card:hover::before{opacity:1;}
+.sc-lbl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.sc-val{font-family:'Crimson Pro',serif;font-size:2rem;font-weight:600;line-height:1;animation:countUp .5s cubic-bezier(.22,1,.36,1) both;}
+.sc-note{font-size:.7rem;color:var(--muted);margin-top:4px;}
+.sc-icon{position:absolute;right:14px;top:14px;font-size:1.4rem;opacity:.4;}
+
+/* ── GRADE BADGES ───────────────────────────────────── */
+.gbadge{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.05em;}
+.gA{background:rgba(18,201,138,.12);color:var(--green);}
+.gB{background:rgba(77,141,255,.12);color:var(--blue);}
+.gC{background:rgba(245,166,35,.12);color:var(--amber);}
+.gD{background:rgba(245,71,107,.1);color:#fb7185;}
+.gF{background:rgba(245,71,107,.15);color:var(--rose);}
+
+/* ── ACTION BUTTONS ─────────────────────────────────── */
+.act-btn{
+  background:transparent;border:1px solid var(--border);border-radius:4px;
+  padding:3px 8px;font-size:.72rem;cursor:pointer;color:var(--muted);
+  transition:all .15s;margin-left:3px;
+}
+.act-btn.e:hover{color:var(--blue);border-color:var(--blue);background:var(--blue-glow);}
+.act-btn.d:hover{color:var(--rose);border-color:var(--rose);background:rgba(245,71,107,.08);}
+.act-btn.v:hover{color:var(--cyan);border-color:var(--cyan);background:var(--cyan-glow);}
+
+.btn-add{
+  background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;
+  border:none;border-radius:var(--rs);padding:9px 16px;font-size:.8rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .2s,transform .15s;
+  white-space:nowrap;
+}
+.btn-add:hover{opacity:.88;transform:translateY(-2px);}
+.btn-out{
+  background:var(--surf2);border:1.5px solid var(--border);color:var(--ink2);
+  border-radius:var(--rs);padding:9px 14px;font-size:.8rem;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;gap:5px;
+}
+.btn-out:hover{border-color:var(--cyan);color:var(--cyan);}
+.btn-save{
+  background:linear-gradient(135deg,var(--green),var(--cyan));color:#fff;
+  border:none;border-radius:var(--rs);padding:9px 16px;font-size:.8rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .2s,transform .15s;
+}
+.btn-save:hover{opacity:.88;transform:translateY(-1px);}
+.btn-cancel{
+  background:var(--surf2);border:1.5px solid var(--border);color:var(--ink2);
+  border-radius:var(--rs);padding:9px 14px;font-size:.8rem;cursor:pointer;transition:all .2s;
+}
+.btn-cancel:hover{border-color:var(--rose);color:var(--rose);}
+
+/* ── TOOLBAR ────────────────────────────────────────── */
+.toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.s-box{
+  flex:1;min-width:180px;background:var(--surf2);border:1.5px solid var(--border);
+  border-radius:var(--rs);padding:9px 14px;color:var(--ink);font-size:.82rem;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.s-box:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-glow);}
+.f-sel{
+  background:var(--surf2);border:1.5px solid var(--border);color:var(--ink);
+  border-radius:var(--rs);padding:9px 12px;font-size:.82rem;outline:none;cursor:pointer;
+  transition:border-color .2s;
+}
+.f-sel:focus{border-color:var(--violet);}
+.f-sel option{background:var(--surf2);}
+
+/* ── MODALS ─────────────────────────────────────────── */
+.m-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);
+  z-index:5000;display:none;align-items:center;justify-content:center;
+  animation:fadeIn .25s ease;
+}
+.m-overlay.open{display:flex;}
+.modal{
+  background:var(--surf);border:1px solid var(--border2);border-radius:var(--r);
+  padding:28px 32px;width:90%;max-width:520px;box-shadow:var(--shadow-lg);
+  animation:scaleIn .35s cubic-bezier(.34,1.56,.64,1) both;
+  max-height:90vh;overflow-y:auto;
+}
+.m-title{font-family:'Crimson Pro',serif;font-size:1.35rem;font-weight:600;margin-bottom:4px;}
+.m-sub{font-size:.78rem;color:var(--ink2);margin-bottom:22px;line-height:1.6;}
+.m-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+
+/* ── TABS ───────────────────────────────────────────── */
+.tab-strip{
+  display:flex;gap:2px;background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--rs);padding:3px;margin-bottom:18px;width:fit-content;flex-wrap:wrap;
+}
+.tab-btn{
+  padding:7px 16px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;
+  border:none;background:transparent;color:var(--muted);transition:all .2s;
+}
+.tab-btn.on{background:var(--surf2);color:var(--ink);box-shadow:var(--shadow);}
+.tab-btn:hover:not(.on){color:var(--ink2);}
+
+/* ── BARS & CHARTS ──────────────────────────────────── */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.bar-lbl{font-size:.76rem;color:var(--ink2);flex-shrink:0;width:130px;}
+.bar-track{flex:1;height:20px;background:var(--surf2);border-radius:var(--rxs);overflow:hidden;}
+.bar-fill{
+  height:100%;border-radius:var(--rxs);display:flex;align-items:center;justify-content:flex-end;
+  padding-right:8px;font-size:.7rem;font-weight:700;color:#fff;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+}
+.dist-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.dist-lbl{width:28px;font-size:.74rem;font-weight:700;}
+.dist-track{flex:1;height:18px;background:var(--surf2);border-radius:var(--rxs);overflow:hidden;}
+.dist-fill{height:100%;display:flex;align-items:center;padding-left:8px;font-size:.68rem;font-weight:600;color:#fff;transition:width 1s cubic-bezier(.4,0,.2,1);}
+.dist-cnt{width:28px;text-align:right;font-size:.74rem;color:var(--muted);}
+
+/* canvas container */
+.canvas-wrap{padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+.canvas-wrap canvas{max-width:100%;border-radius:var(--rxs);}
+
+/* ── STUDENT DASHBOARD ──────────────────────────────── */
+.pg-body{flex:1;padding:24px;max-width:1100px;margin:0 auto;width:100%;}
+.pg-hdr{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;}
+.pg-title{font-family:'Crimson Pro',serif;font-size:1.8rem;font-weight:600;}
+.pg-sub{color:var(--ink2);font-size:.82rem;margin-top:3px;}
+.hdr-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* subject cards */
+.subj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;}
+.subj-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;transition:transform .25s,border-color .2s,box-shadow .2s;
+  animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+.subj-card:hover{transform:translateY(-6px) scale(1.02);border-color:var(--border2);box-shadow:var(--shadow);}
+.subj-card-name{font-size:.7rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em;}
+.subj-card-mark{font-family:'Crimson Pro',serif;font-size:2rem;font-weight:600;}
+.mark-track{width:100%;height:4px;background:var(--surf3);border-radius:50px;margin-top:8px;overflow:hidden;}
+.mark-fill{height:100%;border-radius:50px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+
+/* leaderboard */
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);transition:background .15s;}
+.lb-row:last-child{border-bottom:none;}
+.lb-row:hover{background:var(--surf2);border-radius:var(--rxs);padding-left:6px;}
+.lb-rank{width:28px;height:28px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;}
+.lb-rank.g{background:rgba(245,166,35,.15);color:var(--amber);}
+.lb-rank.s{background:rgba(148,163,184,.15);color:#94a3b8;}
+.lb-rank.b{background:rgba(194,98,61,.15);color:#c2623d;}
+.lb-name{flex:1;font-size:.84rem;font-weight:600;}
+.lb-bar{flex:1;height:4px;background:var(--surf3);border-radius:50px;overflow:hidden;}
+.lb-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width 1s;}
+.lb-pct{width:40px;text-align:right;font-size:.8rem;font-weight:700;font-family:var(--mono);}
+
+/* subject topper cards */
+.st-card{
+  background:var(--surf2);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:12px;
+  animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) both;
+  transition: transform .2s, border-color .2s; /* FIXED */
+}
+
+.st-card:hover{
+  border-color:var(--border2);
+  transform:translateY(-3px);
+}
+
+/* ── OV CARDS ───────────────────────────────────────── */
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:22px;}
+.ov-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:transform .2s,border-color .2s,box-shadow .2s;animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+.ov-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:var(--shadow);}
+.ov-ico{font-size:1.2rem;margin-bottom:10px;}
+.ov-num{font-family:'Crimson Pro',serif;font-size:2rem;font-weight:600;}
+.ov-lbl{font-size:.72rem;color:var(--muted);margin-top:4px;}
+
+/* analytics grid */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:680px){.analytics-grid{grid-template-columns:1fr;}}
+
+/* ── ATTENDANCE ─────────────────────────────────────── */
+.att-month-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;}
+.att-month-tab{
+  padding:6px 14px;border-radius:var(--rxs);font-size:.76rem;font-weight:700;
+  cursor:pointer;border:1px solid var(--border);background:var(--surf2);
+  color:var(--muted);transition:all .2s;
+}
+.att-month-tab.on{background:rgba(77,141,255,.15);border-color:var(--blue);color:var(--blue);}
+.att-month-tab:hover:not(.on){border-color:var(--border2);color:var(--ink2);}
+.att-full-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px;}
+.att-full-cell{
+  aspect-ratio:1;border-radius:4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:.58rem;transition:transform .15s,box-shadow .15s;border:1px solid transparent;
+  user-select:none;
+}
+.att-full-cell:hover:not(.att-w){transform:scale(1.15);box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;}
+.att-full-cell.att-p{background:rgba(18,201,138,.2);border-color:rgba(18,201,138,.38);}
+.att-full-cell.att-a{background:rgba(245,71,107,.18);border-color:rgba(245,71,107,.3);}
+.att-full-cell.att-h{background:rgba(245,166,35,.16);border-color:rgba(245,166,35,.28);}
+.att-full-cell.att-w{background:var(--surf);opacity:.3;cursor:default;}
+.att-stats-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.att-stat-chip{padding:5px 12px;border-radius:50px;font-size:.74rem;font-weight:700;border:1px solid transparent;}
+.att-stat-chip.p{background:rgba(18,201,138,.1);border-color:rgba(18,201,138,.25);color:var(--green);}
+.att-stat-chip.a{background:rgba(245,71,107,.08);border-color:rgba(245,71,107,.2);color:var(--rose);}
+.att-stat-chip.h{background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.2);color:var(--amber);}
+.att-stat-chip.pct{background:rgba(77,141,255,.08);border-color:rgba(77,141,255,.2);color:var(--blue);}
+.att-bulk-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.att-bulk-btn{
+  padding:5px 12px;border-radius:var(--rxs);font-size:.74rem;font-weight:700;
+  cursor:pointer;border:1.5px solid transparent;transition:all .2s;
+}
+.att-bulk-btn.p{background:rgba(18,201,138,.12);border-color:rgba(18,201,138,.3);color:var(--green);}
+.att-bulk-btn.a{background:rgba(245,71,107,.1);border-color:rgba(245,71,107,.25);color:var(--rose);}
+.att-bulk-btn.h{background:rgba(245,166,35,.1);border-color:rgba(245,166,35,.25);color:var(--amber);}
+.att-6m-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+.att-6m-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;transition:transform .2s;animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+.att-6m-card:hover{transform:translateY(-3px);}
+.att-6m-name{font-size:.7rem;color:var(--muted);margin-bottom:4px;}
+.att-6m-pct{font-family:'Crimson Pro',serif;font-size:1.5rem;font-weight:600;}
+.att-6m-bar{height:3px;border-radius:2px;background:var(--surf3);margin-top:6px;overflow:hidden;}
+.att-6m-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.att-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;}
+.att-li{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--ink2);}
+.att-ld{width:9px;height:9px;border-radius:2px;}
+.att-dow-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;}
+.att-dow-lbl{font-size:.6rem;color:var(--muted);text-align:center;}
+
+/* ── REACT DEMO ─────────────────────────────────────── */
+.react-demo{background:var(--surf2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;font-family:var(--mono);}
+.react-demo-title{font-size:.7rem;color:var(--muted);margin-bottom:12px;letter-spacing:.05em;}
+.react-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;}
+.react-comp{background:var(--surf);border:1px solid var(--border);border-radius:var(--rxs);padding:12px;transition:all .2s;}
+.react-comp:hover{border-color:var(--violet);transform:translateY(-2px);}
+.rc-lbl{font-size:.66rem;color:var(--muted);margin-bottom:6px;}
+.rc-val{font-family:'Crimson Pro',serif;font-size:1.4rem;font-weight:600;color:var(--violet);}
+
+/* ── SETTINGS ───────────────────────────────────────── */
+.settings-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:14px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+.settings-title{font-size:.78rem;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;}
+
+/* ── NOTIFICATION PANEL ─────────────────────────────── */
+.notif-panel{
+  position:fixed;top:60px;right:16px;width:320px;background:var(--surf);
+  border:1px solid var(--border2);border-radius:var(--r);box-shadow:var(--shadow-lg);
+  z-index:4000;display:none;animation:slideDown .3s cubic-bezier(.22,1,.36,1) both;
+  overflow:hidden;
+}
+.notif-panel.open{display:block;}
+.np-hdr{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.np-title{font-size:.82rem;font-weight:700;}
+.np-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;transition:color .2s;}
+.np-close:hover{color:var(--rose);}
+.np-list{max-height:280px;overflow-y:auto;}
+.np-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;display:flex;gap:10px;align-items:flex-start;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--surf2);}
+.np-ititle{font-size:.82rem;font-weight:600;margin-bottom:2px;}
+.np-isub{font-size:.72rem;color:var(--muted);}
+.notif-panel{max-height:520px;display:flex;flex-direction:column;}
+.np-list{flex:1;overflow-y:auto;min-height:0;}
+.np-unread{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:4px;}
+
+/* ── SEARCH SUGGESTIONS ─────────────────────────────── */
+.search-wrap{position:relative;flex:1;min-width:180px;}
+.suggest-box{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surf);
+  border:1px solid var(--border2);border-radius:var(--rs);z-index:40;
+  box-shadow:var(--shadow-lg);overflow:hidden;max-height:220px;overflow-y:auto;display:none;
+  animation:slideDown .2s ease;
+}
+.suggest-box.open{display:block;}
+.sug-item{padding:10px 14px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:10px;font-size:.82rem;}
+.sug-item:hover{background:var(--surf2);}
+.sug-roll{font-family:var(--mono);font-size:.7rem;color:var(--blue);}
+
+/* ── PAGINATION ─────────────────────────────────────── */
+.pag{display:flex;gap:4px;align-items:center;margin-top:12px;flex-wrap:wrap;}
+.pag-info{font-size:.74rem;color:var(--muted);margin-right:6px;}
+.pag-btn{
+  padding:5px 10px;border-radius:var(--rxs);border:1px solid var(--border);
+  background:var(--surf2);color:var(--ink2);cursor:pointer;font-size:.76rem;
+  transition:all .2s;min-width:32px;text-align:center;
+}
+.pag-btn:hover:not(:disabled){border-color:var(--violet);color:var(--violet);}
+.pag-btn.on{background:rgba(157,111,245,.1);border-color:var(--violet);color:var(--violet);font-weight:700;}
+.pag-btn:disabled{opacity:.35;cursor:default;}
+
+/* sort btns */
+.sort-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.sort-btn{background:var(--surf2);border:1px solid var(--border);border-radius:var(--rxs);padding:5px 11px;font-size:.74rem;cursor:pointer;color:var(--ink2);transition:all .2s;}
+.sort-btn:hover{border-color:var(--blue);color:var(--blue);}
+.sort-btn.on{background:rgba(77,141,255,.1);border-color:var(--blue);color:var(--blue);}
+
+/* ── KBD OVERLAY ────────────────────────────────────── */
+#kbd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);z-index:9000;display:none;align-items:center;justify-content:center;}
+#kbd-overlay.open{display:flex;animation:fadeIn .25s ease;}
+.kbd-panel{background:var(--surf);border:1px solid var(--border2);border-radius:var(--r);padding:28px 32px;max-width:660px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:scaleIn .35s cubic-bezier(.34,1.56,.64,1) both;}
+.kbd-title{font-family:'Crimson Pro',serif;font-size:1.4rem;font-weight:600;margin-bottom:6px;}
+.kbd-sub{font-size:.76rem;color:var(--muted);margin-bottom:20px;}
+.kbd-section{margin-bottom:18px;}
+.kbd-sect-title{font-size:.64rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;font-weight:700;}
+.kbd-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+@media(max-width:480px){.kbd-grid{grid-template-columns:1fr;}}
+.kbd-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:var(--rxs);transition:background .15s;}
+.kbd-row:hover{background:var(--surf2);}
+.kbd-desc{font-size:.78rem;color:var(--ink2);flex:1;}
+.kbd-keys{display:flex;gap:4px;align-items:center;flex-shrink:0;}
+kbd{display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:5px;font-size:.68rem;font-weight:700;font-family:var(--mono);background:var(--surf3);border:1px solid var(--border2);color:var(--ink);box-shadow:0 2px 0 var(--border2);min-width:24px;}
+.kbd-plus{font-size:.62rem;color:var(--muted);}
+.kbd-close-btn{width:100%;margin-top:18px;padding:10px;border-radius:var(--rs);background:rgba(77,141,255,.08);border:1.5px solid rgba(77,141,255,.2);color:var(--blue);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.kbd-close-btn:hover{background:rgba(77,141,255,.15);}
+#kbd-hint{position:fixed;bottom:18px;right:18px;z-index:8000;background:var(--surf);border:1px solid var(--border2);border-radius:50px;padding:7px 16px;font-size:.7rem;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:var(--shadow);transition:all .2s;}
+#kbd-hint:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px);}
+
+/* ── MARK ENTRY ─────────────────────────────────────── */
+.marks-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:22px;max-width:620px;}
+.mk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.mk-preview{margin:12px 0;padding:12px 14px;background:var(--surf2);border:1px solid var(--border);border-radius:var(--rs);font-size:.82rem;color:var(--ink2);animation:fadeIn .3s ease;}
+
+/* ── TWO-COL ────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:680px){.two-col{grid-template-columns:1fr;}}
+
+/* ── DOT STATUS ─────────────────────────────────────── */
+.st-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;}
+
+/* ── QUICK SEARCH ───────────────────────────────────── */
+.qs-results-wrap{margin-top:14px;}
+
+/* ── PUBLIC ANALYTICS ───────────────────────────────── */
+.pub-body{flex:1;padding:24px;max-width:1100px;margin:0 auto;width:100%;}
+
+/* ── REACT POWERED BADGE ────────────────────────────── */
+.react-badge{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 10px;
+  background:rgba(0,212,180,.08);border:1px solid rgba(0,212,180,.2);border-radius:50px;
+  font-size:.65rem;color:var(--cyan);letter-spacing:.08em;
+}
+.react-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--cyan);animation:pulse 2s infinite;}
+
+/* ── PARTICLE CANVAS ────────────────────────────────── */
+#particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* ── ANIMATED COUNTER ───────────────────────────────── */
+.animated-num{display:inline-block;animation:countUp .6s cubic-bezier(.22,1,.36,1) both;}
+
+/* ── PROGRESS RING ──────────────────────────────────── */
+.progress-ring{transform:rotate(-90deg);}
+.progress-ring-track{fill:none;stroke:var(--surf3);stroke-width:6;}
+.progress-ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);}
+
+/* wave bars (decorative) */
+.wave-bars{display:flex;gap:2px;align-items:flex-end;height:20px;}
+.wave-bar{width:3px;border-radius:2px;background:var(--blue);animation:waveform .8s ease-in-out infinite;}
+
+/* ── ZOOM CONTROL ──────────────────────────────────── */
+#zoom-widget{
+  position:fixed;bottom:60px;left:18px;z-index:8500;
+  display:flex;align-items:center;gap:4px;
+  background:var(--surf);border:1px solid var(--border2);border-radius:50px;
+  padding:5px 10px;box-shadow:var(--shadow);
+  transition:opacity .25s,transform .25s;
+}
+#zoom-widget:hover{border-color:var(--blue);}
+.zoom-btn{
+  width:26px;height:26px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surf2);color:var(--ink);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;
+  transition:all .15s;line-height:1;
+}
+.zoom-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-glow);}
+.zoom-pct{
+  font-family:var(--mono);font-size:.68rem;color:var(--muted);min-width:34px;
+  text-align:center;user-select:none;font-weight:600;
+}
+#zoom-reset{font-size:.62rem;padding:0 2px;}
+
+/* ── FORGOT PASSWORD MODAL ──────────────────────────── */
+.fp-steps{display:flex;gap:0;margin-bottom:22px;}
+.fp-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
+.fp-step:not(:last-child)::after{content:'';position:absolute;top:14px;right:-50%;width:100%;height:2px;background:var(--border);z-index:0;}
+.fp-step.done::after{background:var(--green);}
+.fp-step-num{width:28px;height:28px;border-radius:50%;background:var(--surf3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;z-index:1;transition:all .3s;}
+.fp-step.active .fp-step-num{background:var(--blue);border-color:var(--blue);color:#fff;}
+.fp-step.done .fp-step-num{background:var(--green);border-color:var(--green);color:#fff;}
+.fp-step-lbl{font-size:.6rem;color:var(--muted);text-align:center;letter-spacing:.05em;}
+.fp-step.active .fp-step-lbl{color:var(--blue);}
+.fp-step.done .fp-step-lbl{color:var(--green);}
+.security-q-grid{display:grid;gap:10px;margin:12px 0;}
+.security-q-item{background:var(--surf2);border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;cursor:pointer;transition:all .2s;font-size:.82rem;}
+.security-q-item:hover{border-color:var(--blue);background:var(--surf3);}
+.security-q-item.selected{border-color:var(--cyan);background:rgba(0,212,180,.07);}
+.fp-link{background:none;border:none;color:var(--blue);font-size:.78rem;cursor:pointer;padding:0;margin-top:10px;text-decoration:underline;text-underline-offset:3px;font-family:'Syne',sans-serif;}
+.fp-link:hover{color:var(--cyan);}
+
+/* ── PAPER SEEING REQUEST ───────────────────────────── */
+.paper-req-tab{margin-top:16px;}
+.paper-req-form{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:14px;}
+.req-status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:50px;font-size:.68rem;font-weight:700;letter-spacing:.05em;}
+.req-status-badge.pending{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.3);}
+.req-status-badge.approved{background:rgba(18,201,138,.12);color:var(--green);border:1px solid rgba(18,201,138,.3);}
+.req-status-badge.rejected{background:rgba(245,71,107,.12);color:var(--rose);border:1px solid rgba(245,71,107,.3);}
+.req-card{background:var(--surf2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px;animation:fadeUp .4s both;}
+.req-card-hdr{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.req-card-meta{flex:1;}
+.req-card-name{font-weight:700;font-size:.88rem;}
+.req-card-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.req-card-reason{font-size:.8rem;color:var(--ink2);line-height:1.65;padding:8px 10px;background:var(--surf);border-radius:var(--rxs);border-left:3px solid var(--blue);margin:8px 0;}
+.req-card-actions{display:flex;gap:8px;margin-top:10px;}
+.req-approve-btn{background:rgba(18,201,138,.1);border:1.5px solid var(--green);color:var(--green);border-radius:var(--rxs);padding:5px 14px;font-size:.76rem;cursor:pointer;transition:all .2s;font-family:'Syne',sans-serif;}
+.req-approve-btn:hover{background:rgba(18,201,138,.2);}
+.req-reject-btn{background:rgba(245,71,107,.1);border:1.5px solid var(--rose);color:var(--rose);border-radius:var(--rxs);padding:5px 14px;font-size:.76rem;cursor:pointer;transition:all .2s;font-family:'Syne',sans-serif;}
+.req-reject-btn:hover{background:rgba(245,71,107,.2);}
+.req-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:.86rem;}
+.req-filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.req-filter-btn{background:var(--surf2);border:1px solid var(--border);border-radius:50px;padding:5px 14px;font-size:.72rem;cursor:pointer;color:var(--ink2);transition:all .2s;}
+.req-filter-btn:hover{border-color:var(--blue);color:var(--blue);}
+.req-filter-btn.on{background:rgba(77,141,255,.1);border-color:var(--blue);color:var(--blue);font-weight:700;}
+.admin-req-badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--amber);font-size:.52rem;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid var(--surf);}
+
+/* ── PRINT ──────────────────────────────────────────── */
+@media print{
+  .topbar,.sidebar,.hdr-actions,.pag,.toolbar,.tab-strip{display:none!important;}
+  .admin-shell{height:auto;}
+  .admin-main{overflow:visible;}
+  body{background:#fff;color:#000;}
+  .card,.stat-card{border:1px solid #ddd;}
+}
+</style>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+<div class="bg-grid-fine"></div>
+
+<!-- LOADER -->
+<div id="root-loader">
+  <div class="loader-brand">EduResult Pro</div>
+  <div class="loader-track"><div class="loader-bar"></div></div>
+  <div class="loader-txt">Initializing React Engine…</div>
+</div>
+
+<div id="app"></div>
+<div id="toast-root"></div>
+
+<!-- KBD OVERLAY -->
+<div id="kbd-overlay">
+  <div class="kbd-panel">
+    <div class="kbd-title">⌨️ Keyboard Shortcuts</div>
+    <div class="kbd-sub">Press <kbd>?</kbd> to toggle this panel anytime.</div>
+    <div class="kbd-section"><div class="kbd-sect-title">Navigation</div><div class="kbd-grid">
+      <div class="kbd-row"><div class="kbd-desc">Home / Landing</div><div class="kbd-keys"><kbd>Alt</kbd><span class="kbd-plus">+</span><kbd>H</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Student Login</div><div class="kbd-keys"><kbd>Alt</kbd><span class="kbd-plus">+</span><kbd>S</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Admin Login</div><div class="kbd-keys"><kbd>Alt</kbd><span class="kbd-plus">+</span><kbd>A</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Public Analytics</div><div class="kbd-keys"><kbd>Alt</kbd><span class="kbd-plus">+</span><kbd>N</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Logout</div><div class="kbd-keys"><kbd>Alt</kbd><span class="kbd-plus">+</span><kbd>L</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Close modal</div><div class="kbd-keys"><kbd>Esc</kbd></div></div>
+    </div></div>
+    <div class="kbd-section"><div class="kbd-sect-title">Admin Actions</div><div class="kbd-grid">
+      <div class="kbd-row"><div class="kbd-desc">Add Student</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>Shift</kbd><span class="kbd-plus">+</span><kbd>N</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Search</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>F</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Save</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>S</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Export CSV</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>E</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Export PDF</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>P</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Save HTML file</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>Shift</kbd><span class="kbd-plus">+</span><kbd>S</kbd></div></div>
+    </div></div>
+    <div class="kbd-section"><div class="kbd-sect-title">Admin Sections</div><div class="kbd-grid">
+      <div class="kbd-row"><div class="kbd-desc">Overview</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>1</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Students</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>2</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Marks Entry</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>3</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Attendance</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>4</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Analytics</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>5</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Toppers</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>6</kbd></div></div>
+    </div></div>
+    <div class="kbd-section"><div class="kbd-sect-title">Interface</div><div class="kbd-grid">
+      <div class="kbd-row"><div class="kbd-desc">Toggle Theme</div><div class="kbd-keys"><kbd>Alt</kbd><span class="kbd-plus">+</span><kbd>T</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Shortcuts Panel</div><div class="kbd-keys"><kbd>?</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Prev Month (Att)</div><div class="kbd-keys"><kbd>←</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Next Month (Att)</div><div class="kbd-keys"><kbd>→</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Print</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>Shift</kbd><span class="kbd-plus">+</span><kbd>P</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Zoom In</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>=</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Zoom Out</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>−</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Reset Zoom</div><div class="kbd-keys"><kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>0</kbd></div></div>
+      <div class="kbd-row"><div class="kbd-desc">Notifications</div><div class="kbd-keys"><kbd>Alt</kbd><span class="kbd-plus">+</span><kbd>B</kbd></div></div>
+    </div></div>
+    <button class="kbd-close-btn" onclick="document.getElementById('kbd-overlay').classList.remove('open')">✕ Close (Esc)</button>
+  </div>
+</div>
+<div id="kbd-hint" onclick="document.getElementById('kbd-overlay').classList.add('open')"><kbd style="box-shadow:none">?</kbd> Shortcuts</div>
+
+<script type="text/babel">
+// ═══════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════
+const { useState, useEffect, useReducer, useCallback, useRef, useMemo, createContext, useContext } = React;
+
+const SUBJECTS = ['Mathematics','Science','English','Social Studies','Hindi','Computer Science'];
+const ATT_MONTHS = ['January','February','March','April','May','June'];
+const ATT_DAYS   = [31, 28, 31, 30, 31, 30];
+const ATT_YEAR   = 2025;
+const PASS_MARK_DEFAULT = 35;
+const MAX_MARK = 100;
+const PAGE_SIZE = 5;
+
+const SK = {
+  students:'er_students_r',
+  settings:'er_settings_r',
+  theme:'er_theme_r',
+  adminPw:'er_admin_pw_r',
+  nextId:'er_next_id_r'
+};
+
+// ═══════════════════════════════════════════════════════
+// UTILITIES  (pure functions — advanced JS patterns)
+// ═══════════════════════════════════════════════════════
+const avg = marks => {
+  const vals = Object.values(marks);
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+};
+const grade = p => p>=90?'A+':p>=80?'A':p>=70?'B+':p>=60?'B':p>=50?'C':p>=40?'D':'F';
+const gClass = g => (g==='A+'||g==='A')?'gA':(g==='B+'||g==='B')?'gB':g==='C'?'gC':g==='D'?'gD':'gF';
+const col = p => p>=80?'#12c98a':p>=60?'#4d8dff':p>=40?'#f5a623':'#f5476b';
+const grad = p => p>=80?'linear-gradient(90deg,#12c98a,#00d4b4)':p>=60?'linear-gradient(90deg,#4d8dff,#9d6ff5)':p>=40?'linear-gradient(90deg,#f5a623,#f97316)':'linear-gradient(90deg,#f5476b,#e11d48)';
+const subKey = sub => sub.replace(/ /g,'');
+const isPass = (s, passMark) => Object.values(s.marks).every(m => m >= passMark);
+const getRank = (s, students) => [...students].sort((a,b) => avg(b.marks)-avg(a.marks)).findIndex(x=>x.id===s.id)+1;
+const att75Pct = s => {
+  if (!Array.isArray(s.att)) return 0;
+  const flat = Array.isArray(s.att[0]) ? s.att.reduce((a,m)=>[...a,...m],[]) : s.att;
+  const wd=flat.filter(x=>x!=='w'), p=wd.filter(x=>x==='p').length;
+  return wd.length?Math.round(p/wd.length*100):0;
+};
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const debounce = (fn, ms) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+const validatePwStrength = pw => pw.length>=8 && /[A-Z]/.test(pw) && /[0-9]/.test(pw);
+
+// Storage layer with error handling (Proxy pattern)
+const Storage = new Proxy({}, {
+  get: (_, method) => (...args) => {
+    try {
+      if (method === 'save') {
+        const [key, val] = args;
+        const json = JSON.stringify(val);
+        localStorage.setItem(key, json);
+        sessionStorage.setItem(key, json);
+      } else if (method === 'load') {
+        const [key, def = null] = args;
+        const v = localStorage.getItem(key) || sessionStorage.getItem(key);
+        return v ? JSON.parse(v) : def;
+      }
+    } catch(e) { return args[1] ?? null; }
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// ATTENDANCE GENERATOR
+// ═══════════════════════════════════════════════════════
+function genAtt(rate) {
+  return ATT_MONTHS.map((_, mi) =>
+    Array.from({ length: ATT_DAYS[mi] }, (_, di) => {
+      const dow = new Date(ATT_YEAR, mi, di + 1).getDay();
+      if (dow === 0 || dow === 6) return 'w';
+      const r = Math.random();
+      return r < .05 ? 'h' : r < .05 + (1 - rate) * .95 ? 'a' : 'p';
+    })
+  );
+}
+
+function ensureAtt(s) {
+  if (!Array.isArray(s.att) || !Array.isArray(s.att[0])) {
+    s.att = genAtt(.85);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// DEFAULT DATA
+// ═══════════════════════════════════════════════════════
+const DEFAULT_STUDENTS = [
+  { id:1, roll:'STU001', name:'Priya Sharma',    cls:'10-A', dob:'2003', gender:'Female', cat:'General', email:'priya@edu.com',   phone:'9876543210', marks:{Mathematics:88,Science:92,English:78,SocialStudies:85,Hindi:90,ComputerScience:95}, att:genAtt(.92) },
+  { id:2, roll:'STU002', name:'Arjun Kumar',     cls:'10-B', dob:'2004', gender:'Male',   cat:'OBC',     email:'arjun@edu.com',   phone:'9876543211', marks:{Mathematics:74,Science:68,English:82,SocialStudies:79,Hindi:71,ComputerScience:88}, att:genAtt(.85) },
+  { id:3, roll:'STU003', name:'Divya Lakshmi',   cls:'10-A', dob:'2002', gender:'Female', cat:'SC',      email:'divya@edu.com',   phone:'9876543212', marks:{Mathematics:55,Science:60,English:72,SocialStudies:65,Hindi:80,ComputerScience:58}, att:genAtt(.78) },
+  { id:4, roll:'STU004', name:'Karthik Rajan',   cls:'10-C', dob:'2003', gender:'Male',   cat:'General', email:'karthik@edu.com', phone:'9876543213', marks:{Mathematics:91,Science:87,English:84,SocialStudies:88,Hindi:76,ComputerScience:93}, att:genAtt(.97) },
+  { id:5, roll:'STU005', name:'Sneha Patel',     cls:'10-B', dob:'2004', gender:'Female', cat:'OBC',     email:'sneha@edu.com',   phone:'9876543214', marks:{Mathematics:42,Science:38,English:55,SocialStudies:48,Hindi:62,ComputerScience:44}, att:genAtt(.71) },
+  { id:6, roll:'STU006', name:'Rahul Verma',     cls:'10-C', dob:'2003', gender:'Male',   cat:'General', email:'rahul@edu.com',   phone:'9876543215', marks:{Mathematics:67,Science:73,English:69,SocialStudies:71,Hindi:65,ComputerScience:78}, att:genAtt(.88) },
+  { id:7, roll:'STU007', name:'Anitha Ravi',     cls:'10-A', dob:'2004', gender:'Female', cat:'ST',      email:'anitha@edu.com',  phone:'9876543216', marks:{Mathematics:83,Science:79,English:88,SocialStudies:90,Hindi:85,ComputerScience:82}, att:genAtt(.94) },
+];
+
+// ═══════════════════════════════════════════════════════
+// TOAST SYSTEM  (imperative, outside React)
+// ═══════════════════════════════════════════════════════
+function showToast(msg, color = '#4d8dff') {
+  const root = document.getElementById('toast-root');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.borderLeftColor = color;
+  el.textContent = msg;
+  root.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('exit');
+    setTimeout(() => el.remove(), 350);
+  }, 3200);
+}
+
+// ═══════════════════════════════════════════════════════
+// APP CONTEXT  (React Context API)
+// ═══════════════════════════════════════════════════════
+const AppContext = createContext(null);
+
+function appReducer(state, action) {
+  switch (action.type) {
+    case 'SET_PAGE':       return { ...state, page: action.page };
+    case 'SET_STUDENTS':   return { ...state, students: action.students };
+    case 'ADD_STUDENT':    return { ...state, students: [...state.students, action.student] };
+    case 'UPDATE_STUDENT': return { ...state, students: state.students.map(s => s.id === action.student.id ? action.student : s) };
+    case 'DELETE_STUDENT': return { ...state, students: state.students.filter(s => s.id !== action.id) };
+    case 'SET_CURRENT_STU': return { ...state, currentStudent: action.student };
+    case 'SET_SETTINGS':   return { ...state, ...action.settings };
+    case 'SET_THEME':      return { ...state, theme: action.theme };
+    case 'INC_NEXT_ID':    return { ...state, nextId: state.nextId + 1 };
+    default:               return state;
+  }
+}
+
+function AppProvider({ children }) {
+  const initialStudents = Storage.load(SK.students) || DEFAULT_STUDENTS.map(s => ({ ...s, att: s.att.map(m => [...m]) }));
+  const settings = Storage.load(SK.settings) || {};
+  const [state, dispatch] = useReducer(appReducer, {
+    page: 'landing',
+    students: initialStudents,
+    nextId: Storage.load(SK.nextId) || 8,
+    currentStudent: null,
+    passMark: settings.passMark || PASS_MARK_DEFAULT,
+    schoolName: settings.schoolName || 'Government Higher Secondary School',
+    academicYear: settings.academicYear || '2024–2025',
+    adminPassword: Storage.load(SK.adminPw) || 'Admin@2024',
+    theme: Storage.load(SK.theme) || 'dark',
+  });
+
+  // Persist on every students change
+  useEffect(() => {
+    Storage.save(SK.students, state.students);
+    Storage.save(SK.nextId, state.nextId);
+  }, [state.students, state.nextId]);
+
+  useEffect(() => {
+    document.body.className = state.theme === 'light' ? 'light' : '';
+  }, [state.theme]);
+
+  const saveStudents = useCallback(() => {
+    Storage.save(SK.students, state.students);
+  }, [state.students]);
+
+  const goTo = useCallback((page) => dispatch({ type: 'SET_PAGE', page }), []);
+  const toggleTheme = useCallback(() => {
+    const next = state.theme === 'dark' ? 'light' : 'dark';
+    dispatch({ type: 'SET_THEME', theme: next });
+    Storage.save(SK.theme, next);
+  }, [state.theme]);
+
+  const value = useMemo(() => ({ state, dispatch, goTo, toggleTheme, saveStudents }), [state, dispatch, goTo, toggleTheme, saveStudents]);
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+}
+const useApp = () => useContext(AppContext);
+
+// ═══════════════════════════════════════════════════════
+// CUSTOM HOOKS
+// ═══════════════════════════════════════════════════════
+function useClock() {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const tick = () => setTime(new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' }));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+function useAnimatedNumber(target) {
+  const [current, setCurrent] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const step = target / 30;
+    const id = setInterval(() => {
+      start = Math.min(start + step, target);
+      setCurrent(Math.round(start));
+      if (start >= target) clearInterval(id);
+    }, 20);
+    return () => clearInterval(id);
+  }, [target]);
+  return current;
+}
+
+function useMouseGlow(ref) {
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const handler = e => {
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      const y = ((e.clientY - rect.top)  / rect.height * 100).toFixed(1);
+      el.style.setProperty('--mx', `${x}%`);
+      el.style.setProperty('--my', `${y}%`);
+    };
+    el.addEventListener('mousemove', handler);
+    return () => el.removeEventListener('mousemove', handler);
+  }, []);
+}
+
+function usePwStrength(pw) {
+  return useMemo(() => {
+    const checks = [pw.length>=8, /[A-Z]/.test(pw), /[0-9]/.test(pw), /[^A-Za-z0-9]/.test(pw)];
+    const score = checks.filter(Boolean).length;
+    const labels = ['Too Weak','Weak','Good','Strong'];
+    const colors = ['#f5476b','#f5a623','#4d8dff','#12c98a'];
+    return { score, label: pw.length ? labels[score-1]||'Too Weak' : '', color: colors[score-1]||'' };
+  }, [pw]);
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENTS: PARTICLES (canvas-based)
+// ═══════════════════════════════════════════════════════
+function ParticleCanvas() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+    const particles = Array.from({ length: 60 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - .5) * .4,
+      vy: (Math.random() - .5) * .4,
+      r: Math.random() * 1.5 + .5,
+      a: Math.random() * .4 + .1,
+    }));
+    let raf;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(77,141,255,${p.a})`;
+        ctx.fill();
+        // Connect nearby
+        for (let j = i+1; j < particles.length; j++) {
+          const d = Math.hypot(particles[j].x - p.x, particles[j].y - p.y);
+          if (d < 100) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(77,141,255,${.08 * (1 - d/100)})`;
+            ctx.lineWidth = .5;
+            ctx.stroke();
+          }
+        }
+      });
+      raf = requestAnimationFrame(draw);
+    }
+    draw();
+    const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+    window.addEventListener('resize', resize);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: ANIMATED STAT CARD
+// ═══════════════════════════════════════════════════════
+function AnimatedStatCard({ icon, label, value, note, color, delay = 0 }) {
+  const animValue = useAnimatedNumber(typeof value === 'number' ? value : 0);
+  return (
+    <div className="stat-card anim-scaleIn" style={{ animationDelay: `${delay}s` }}>
+      <span className="sc-icon">{icon}</span>
+      <div className="sc-lbl">{label}</div>
+      <div className="sc-val animated-num" style={{ color: color || 'var(--ink)' }}>
+        {typeof value === 'number' ? animValue : value}
+      </div>
+      {note && <div className="sc-note">{note}</div>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: PROGRESS RING
+// ═══════════════════════════════════════════════════════
+function ProgressRing({ value, size = 80, color = '#4d8dff' }) {
+  const r = (size - 10) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (value / 100) * circ;
+  return (
+    <svg width={size} height={size} className="progress-ring">
+      <circle className="progress-ring-track" cx={size/2} cy={size/2} r={r} />
+      <circle className="progress-ring-fill" cx={size/2} cy={size/2} r={r}
+        stroke={color} strokeDasharray={`${circ} ${circ}`} strokeDashoffset={offset} />
+    </svg>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: TOPBAR
+// ═══════════════════════════════════════════════════════
+function Topbar({ badge, badgeClass, children, rightSlot }) {
+  const { state, toggleTheme } = useApp();
+  const time = useClock();
+  return (
+    <div className="topbar">
+      <span className="tb-brand">EduResult Pro</span>
+      <div className="react-badge"><div className="react-badge-dot"></div>React 18</div>
+      {badge && <span className={`tb-badge ${badgeClass}`}>{badge}</span>}
+      <div className="tb-spacer"/>
+      <span className="tb-clock">{time}</span>
+      {children}
+      <div className="tb-icon-btn" onClick={toggleTheme} title="Toggle Theme">{state.theme === 'dark' ? '🌙' : '☀️'}</div>
+      {rightSlot}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: CANVAS BAR CHART
+// ═══════════════════════════════════════════════════════
+function BarChart({ labels, values, title, id }) {
+  const canvasRef = useRef(null);
+  const { state } = useApp();
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const isDark = state.theme === 'dark';
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    const pad = { t:36, r:20, b:56, l:50 };
+    const cW = W-pad.l-pad.r, cH = H-pad.t-pad.b;
+    const barW = cW/labels.length*.52, gap = cW/labels.length;
+    for (let i=0;i<=5;i++) {
+      const y = pad.t+cH-cH/5*i;
+      ctx.strokeStyle = isDark?'rgba(255,255,255,.05)':'rgba(0,0,0,.07)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+      ctx.fillStyle = isDark?'rgba(255,255,255,.35)':'rgba(0,0,0,.55)';
+      ctx.font = '11px DM Mono'; ctx.textAlign='right';
+      ctx.fillText((MAX_MARK/5*i).toFixed(0), pad.l-5, y+4);
+    }
+    values.forEach((v, i) => {
+      const x = pad.l+gap*i+(gap-barW)/2, bH = cH*(v/MAX_MARK), y = pad.t+cH-bH;
+      const pct = Math.round(v/MAX_MARK*100);
+      const grd = ctx.createLinearGradient(x,y,x,y+bH);
+      grd.addColorStop(0, col(pct)); grd.addColorStop(1, col(pct)+'88');
+      ctx.fillStyle = grd;
+      const r2 = Math.min(5, barW/2);
+      ctx.beginPath(); ctx.moveTo(x+r2,y); ctx.lineTo(x+barW-r2,y);
+      ctx.arcTo(x+barW,y,x+barW,y+r2,r2); ctx.lineTo(x+barW,y+bH);
+      ctx.lineTo(x,y+bH); ctx.arcTo(x,y,x+r2,y,r2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = isDark?'rgba(255,255,255,.8)':'rgba(0,0,0,.7)';
+      ctx.font = 'bold 11px DM Mono'; ctx.textAlign='center';
+      ctx.fillText(v, x+barW/2, y-5);
+      ctx.fillStyle = isDark?'rgba(255,255,255,.45)':'rgba(0,0,0,.5)';
+      ctx.font = '9px Syne';
+      labels[i].split(' ').forEach((w, wi) => ctx.fillText(w, x+barW/2, pad.t+cH+14+wi*12));
+    });
+    ctx.fillStyle = isDark?'rgba(255,255,255,.7)':'rgba(0,0,0,.7)';
+    ctx.font = 'bold 13px Syne'; ctx.textAlign='left';
+    ctx.fillText(title, pad.l, 22);
+  }, [labels, values, title, state.theme]);
+  return <canvas ref={canvasRef} id={id} width={700} height={250} style={{ maxWidth:'100%' }}/>;
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: LANDING PAGE
+// ═══════════════════════════════════════════════════════
+function Landing() {
+  const { goTo, toggleTheme, state } = useApp();
+  const cards = [
+    { id:'student', icon:'🎓', title:'Student Portal', desc:'View results, attendance, grades, and performance charts.', color:'var(--blue)', glow:'rgba(77,141,255,.15)', sg:'rgba(77,141,255,.18)', cls:'badge-s' },
+    { id:'admin',   icon:'🏫', title:'Admin Panel',   desc:'Full control: add students, enter marks, manage attendance.', color:'var(--violet)', glow:'rgba(157,111,245,.12)', sg:'rgba(157,111,245,.2)', cls:'badge-a' },
+    { id:'analytics',icon:'📊',title:'Analytics',     desc:'Public class statistics, grade distribution, leaderboard.', color:'var(--cyan)', glow:'rgba(0,212,180,.1)', sg:'rgba(0,212,180,.18)', cls:'badge-n' },
+  ];
+  const handleClick = (id) => {
+    if (id === 'student') goTo('student-login');
+    else if (id === 'admin') goTo('admin-login');
+    else goTo('analytics');
+  };
+  return (
+    <div className="landing">
+      <ParticleCanvas/>
+      <div className="anim-fadeUp" style={{textAlign:'center'}}>
+        <span className="hero-badge"><span className="badge-dot"/>React 18 + Advanced JS</span>
+      </div>
+      <div style={{textAlign:'center'}}>
+        <h1 className="hero-title">
+          <span className="word"><span className="anim-fadeUp delay-1">Student</span></span>{' '}
+          <span className="word"><span className="accent anim-fadeUp delay-2">Result</span></span>{' '}
+          <span className="word"><span className="anim-fadeUp delay-3">Management</span></span>
+        </h1>
+        <p className="hero-sub anim-fadeUp delay-4">
+          Powered by React 18 · Context API · Custom Hooks · Reducer Pattern
+        </p>
+      </div>
+      <div className="portal-grid">
+        {cards.map((c, i) => {
+          const ref = useRef(null);
+          useMouseGlow(ref);
+          return (
+            <div key={c.id} ref={ref} className={`pcard anim-fadeUp`} style={{ '--c':c.color,'--glow':c.glow,'--sg':c.sg, animationDelay:`${.1+i*.08}s` }} onClick={() => handleClick(c.id)}>
+              <div className="pc-icon">{c.icon}</div>
+              <div className="pc-title">{c.title}</div>
+              <p className="pc-desc">{c.desc}</p>
+              <div className="pc-arrow" style={{color:c.color}}>Enter →</div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="pill-row anim-fadeUp delay-6">
+        {['⚛️ React 18','🧠 Custom Hooks','📦 Context API','🔄 useReducer','✨ Animations','📅 6-Month Attendance','⌨️ Keyboard Shortcuts','📊 Canvas Charts','🔒 Strong Auth','📥 CSV + PDF'].map(p => (
+          <span key={p} className="pill">{p}</span>
+        ))}
+      </div>
+      <div style={{position:'absolute',top:16,right:20,display:'flex',gap:8}}>
+        <div className="tb-icon-btn" onClick={toggleTheme}>{state.theme==='dark'?'🌙':'☀️'}</div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: PASSWORD STRENGTH BAR
+// ═══════════════════════════════════════════════════════
+function PwStrengthBar({ pw, prefix = 'pw' }) {
+  const { score, label, color } = usePwStrength(pw);
+  return (
+    <div className="pw-strength">
+      <div className="pw-bar-row">
+        {[1,2,3,4].map(n => (
+          <div key={n} className={`pw-seg${n<=score?' lit':''}`} style={{ background: n<=score ? color : '' }}/>
+        ))}
+      </div>
+      <div className="pw-label" style={{ color }}>{label}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: STUDENT LOGIN
+// ═══════════════════════════════════════════════════════
+function StudentLogin() {
+  const { state, dispatch, goTo } = useApp();
+  const [roll, setRoll] = useState('');
+  const [pass, setPass] = useState('');
+  const [showPass, setShowPass] = useState(false);
+  const [errs, setErrs] = useState({});
+  const [mainErr, setMainErr] = useState('');
+  const [forgotOpen, setForgotOpen] = useState(false);
+
+  const handlePasswordReset = (stuId, newPass) => {
+    const updated = state.students.find(s=>s.id===stuId);
+    if (updated) {
+      dispatch({ type:'UPDATE_STUDENT', student:{...updated, dob: newPass} });
+    }
+  };
+
+  const login = () => {
+    const e = {};
+    if (!roll.trim()) e.roll = true;
+    if (!pass.trim()) e.pass = true;
+    setErrs(e);
+    if (Object.keys(e).length) return;
+    const stu = state.students.find(s => s.roll === roll.trim().toUpperCase() && s.dob === pass.trim());
+    if (!stu) { setMainErr('❌ Invalid roll number or password.'); return; }
+    dispatch({ type:'SET_CURRENT_STU', student: stu });
+    addNotif('Student Login',`${stu.name} logged in successfully.`,'🎓','admin');
+    // Auto-warn if attendance < 75%
+    const _attP=stu.att.flat().filter(x=>x==='p').length, _attD=stu.att.flat().filter(x=>x!=='w').length;
+    const _attPct=_attD?Math.round(_attP/_attD*100):100;
+    if(_attPct<75) addNotif('Low Attendance Warning',`${stu.name}'s attendance is ${_attPct}% — below the 75% requirement.`,'⚠️','alert');
+    goTo('student-dash');
+  };
+
+  return (
+    <div className="page-full">
+      <Topbar badge="Student" badgeClass="badge-s" rightSlot={
+        <button className="tb-btn" onClick={() => goTo('landing')}>← Back</button>
+      }/>
+      <div className="page-wrap">
+        <div className="login-card lc-s">
+          <div className="login-logo">🎓</div>
+          <div className="login-h">Student Login</div>
+          <div className="login-s">Enter your roll number and date of birth year to access your results.</div>
+          <div className="fg">
+            <label className="fl">Roll Number</label>
+            <input className={`fi${errs.roll?' err':''}`} value={roll} onChange={e=>setRoll(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()} placeholder="e.g. STU001"/>
+            {errs.roll && <div className="fi-err show">Roll number is required</div>}
+          </div>
+          <div className="fg">
+            <label className="fl">Password (Birth Year)</label>
+            <div className="pw-wrap">
+              <input className={`fi${errs.pass?' err':''}`} type={showPass?'text':'password'} value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()} placeholder="e.g. 2003"/>
+              <button className="pw-toggle" type="button" onClick={() => setShowPass(v=>!v)}>{showPass?'🙈':'👁'}</button>
+            </div>
+            {errs.pass && <div className="fi-err show">Password is required</div>}
+          </div>
+          <button className="btn-primary" onClick={login}>View My Results →</button>
+          {mainErr && <div className="f-err-main">{mainErr}</div>}
+          <div style={{textAlign:'center',marginTop:10}}>
+            <button className="fp-link" onClick={()=>setForgotOpen(true)}>🔑 Forgot Password?</button>
+          </div>
+          <div className="demo-box">
+            Roll <strong>STU001</strong> / Pass <strong>2003</strong> &nbsp;·&nbsp;
+            Roll <strong>STU002</strong> / Pass <strong>2004</strong><br/>
+            Roll <strong>STU003</strong> / Pass <strong>2002</strong>
+          </div>
+        </div>
+      </div>
+      {forgotOpen && <ForgotPasswordModal onClose={()=>setForgotOpen(false)} students={state.students} onPasswordReset={handlePasswordReset}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: STUDENT DASHBOARD
+// ═══════════════════════════════════════════════════════
+function StudentDash() {
+  const { state, dispatch, goTo } = useApp();
+  const stu = state.currentStudent;
+  const [tab, setTab] = useState('results');
+  const [changePwOpen, setChangePwOpen] = useState(false);
+  const [stuNotifOpen, setStuNotifOpen] = useState(false);
+  const canvasRef = useRef(null);
+  const pieRef = useRef(null);
+
+  if (!stu) { goTo('student-login'); return null; }
+
+  const a = avg(stu.marks), g = grade(a), pass = isPass(stu, state.passMark);
+  const total = Object.values(stu.marks).reduce((s,v)=>s+v, 0);
+  const attAllP = stu.att.flat().filter(x=>x==='p').length;
+  const attAllD = stu.att.flat().filter(x=>x!=='w').length;
+  const attPct = attAllD ? Math.round(attAllP/attAllD*100) : 0;
+
+  useEffect(() => {
+    if (tab === 'canvas') {
+      drawMarksCanvas();
+      drawPieChart();
+    }
+  }, [tab, state.theme]);
+
+  const drawMarksCanvas = () => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const isDark = state.theme === 'dark';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const keys = Object.keys(stu.marks), vals = keys.map(k => stu.marks[k]);
+    const labels = keys.map(k => k.replace(/([A-Z])/g,' $1').trim());
+    const W=canvas.width, H=canvas.height;
+    const pad={t:30,r:20,b:60,l:50};
+    const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+    const barW=cW/keys.length*.55, gap=cW/keys.length;
+    ctx.strokeStyle=isDark?'rgba(255,255,255,.05)':'rgba(0,0,0,.07)'; ctx.lineWidth=1;
+    for(let i=0;i<=5;i++){
+      const y=pad.t+cH-(cH/5*i);
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+      ctx.fillStyle=isDark?'rgba(255,255,255,.35)':'rgba(0,0,0,.5)';
+      ctx.font='11px DM Mono'; ctx.textAlign='right';
+      ctx.fillText((MAX_MARK/5*i).toFixed(0),pad.l-6,y+4);
+    }
+    vals.forEach((v, i) => {
+      const x=pad.l+gap*i+(gap-barW)/2, bH=cH*(v/MAX_MARK), y=pad.t+cH-bH;
+      const pct=Math.round(v/MAX_MARK*100);
+      const grd=ctx.createLinearGradient(x,y,x,y+bH);
+      if(pct>=80){grd.addColorStop(0,'#12c98a');grd.addColorStop(1,'#00d4b4');}
+      else if(pct>=60){grd.addColorStop(0,'#4d8dff');grd.addColorStop(1,'#9d6ff5');}
+      else if(pct>=40){grd.addColorStop(0,'#f5a623');grd.addColorStop(1,'#f97316');}
+      else{grd.addColorStop(0,'#f5476b');grd.addColorStop(1,'#e11d48');}
+      ctx.fillStyle=grd;
+      const r=Math.min(6,barW/2);
+      ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+barW-r,y);
+      ctx.arcTo(x+barW,y,x+barW,y+r,r); ctx.lineTo(x+barW,y+bH);
+      ctx.lineTo(x,y+bH); ctx.arcTo(x,y,x+r,y,r); ctx.closePath(); ctx.fill();
+      ctx.fillStyle=isDark?'rgba(255,255,255,.8)':'rgba(0,0,0,.75)';
+      ctx.font='bold 12px DM Mono'; ctx.textAlign='center';
+      ctx.fillText(v, x+barW/2, y-6);
+      ctx.fillStyle=isDark?'rgba(255,255,255,.5)':'rgba(0,0,0,.5)';
+      ctx.font='9px Syne';
+      labels[i].split(' ').forEach((w,wi)=>ctx.fillText(w,x+barW/2,pad.t+cH+16+wi*13));
+    });
+    ctx.fillStyle=isDark?'rgba(255,255,255,.7)':'rgba(0,0,0,.7)';
+    ctx.font='bold 13px Crimson Pro'; ctx.textAlign='left';
+    ctx.fillText(`${stu.name} — Subject Marks`, pad.l, 18);
+  };
+
+  const drawPieChart = () => {
+    const canvas = pieRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const isDark = state.theme === 'dark';
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const keys=Object.keys(stu.marks), vals=keys.map(k=>stu.marks[k]);
+    const total=vals.reduce((a,b)=>a+b,0);
+    const cx=canvas.width/2, cy=canvas.height/2, r=100;
+    const colors=['#4d8dff','#12c98a','#9d6ff5','#f5a623','#f5476b','#00d4b4'];
+    let start=-Math.PI/2;
+    vals.forEach((v,i)=>{
+      const slice=(v/total)*Math.PI*2;
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,start,start+slice); ctx.closePath();
+      ctx.fillStyle=colors[i%colors.length]; ctx.fill();
+      ctx.strokeStyle=isDark?'#0b1023':'#fff'; ctx.lineWidth=2; ctx.stroke();
+      const midA=start+slice/2, lx=cx+Math.cos(midA)*r*.68, ly=cy+Math.sin(midA)*r*.68;
+      ctx.fillStyle='#fff'; ctx.font='bold 11px DM Mono'; ctx.textAlign='center';
+      ctx.fillText(Math.round(v/total*100)+'%',lx,ly+4);
+      start+=slice;
+    });
+    keys.forEach((k,i)=>{
+      const lx=10, ly=canvas.height-120+i*18;
+      ctx.fillStyle=colors[i%colors.length]; ctx.fillRect(lx,ly,10,10);
+      ctx.fillStyle=isDark?'rgba(255,255,255,.65)':'rgba(0,0,0,.65)';
+      ctx.font='10px Syne'; ctx.textAlign='left';
+      ctx.fillText(k.replace(/([A-Z])/g,' $1').trim(),lx+14,ly+9);
+    });
+  };
+
+  const exportCSV = () => {
+    let csv = `EduResult Pro — ${state.schoolName}\nStudent: ${stu.name} (${stu.roll})\nClass: ${stu.cls}\n\nSubject,Max,Obtained,%,Grade,Status\n`;
+    Object.keys(stu.marks).forEach(k => {
+      const m=stu.marks[k], pct=Math.round(m/MAX_MARK*100);
+      csv += `"${k.replace(/([A-Z])/g,' $1').trim()}",${MAX_MARK},${m},${pct}%,${grade(pct)},${m>=state.passMark?'Pass':'Fail'}\n`;
+    });
+    dl(csv, `${stu.roll}_result.csv`);
+  };
+
+  return (
+    <div className="page-full">
+      <Topbar badge="Student" badgeClass="badge-s" rightSlot={
+        <>
+          <NotifBell onClick={()=>setStuNotifOpen(o=>!o)}/>
+          <button className="tb-btn" onClick={()=>{ dispatch({type:'SET_CURRENT_STU',student:null}); goTo('student-login'); }}>Logout</button>
+        </>
+      }>
+        <span style={{fontSize:'.76rem',color:'var(--muted)'}}>{stu.name}</span>
+        <div className="tb-icon-btn" onClick={()=>document.getElementById('kbd-overlay').classList.add('open')} title="Shortcuts">⌨️</div>
+      </Topbar>
+      <div className="pg-body">
+        <div className="pg-hdr anim-fadeUp">
+          <div>
+            <div className="pg-title">Hello, {stu.name.split(' ')[0]}! 👋</div>
+            <div className="pg-sub">{stu.roll} · Class {stu.cls} · {stu.gender} · {stu.cat||'General'}</div>
+          </div>
+          <div className="hdr-actions">
+            <button className="tb-btn" onClick={()=>window.print()}>🖨 Print</button>
+            <button className="tb-btn" onClick={exportCSV}>📥 CSV</button>
+            <button className="tb-btn" onClick={()=>buildStudentPDF(stu,state.schoolName,state.academicYear,state.passMark,state.students)}>📄 PDF</button>
+            <button className="tb-btn" onClick={()=>setChangePwOpen(true)}>🔑 Password</button>
+          </div>
+        </div>
+        <div className="stat-grid">
+          <AnimatedStatCard icon="📊" label="Average" value={a} note="out of 100" color={col(a)} delay={0}/>
+          <AnimatedStatCard icon="🏅" label="Grade" value={g} color="var(--violet)" delay={.05}/>
+          <AnimatedStatCard icon={pass?'✅':'❌'} label="Status" value={pass?'Pass':'Fail'} color={pass?'var(--green)':'var(--rose)'} delay={.1}/>
+          <AnimatedStatCard icon="🏆" label="Rank" value={`#${getRank(stu, state.students)}`} color="var(--amber)" delay={.15}/>
+          <AnimatedStatCard icon="📚" label="Total Marks" value={total} note={`of ${SUBJECTS.length*MAX_MARK}`} delay={.2}/>
+          <AnimatedStatCard icon="📅" label="Attendance" value={`${attPct}%`} note="6-month avg" color={attPct>=75?'var(--green)':'var(--amber)'} delay={.25}/>
+        </div>
+        <div className="tab-strip">
+          {[['results','📋 Results'],['canvas','📊 Chart'],['subjects','🎯 Subjects'],['attendance','📅 Attendance'],['notices','📢 Notices'],['paper','📄 Paper Request']].map(([t,l]) => (
+            <button key={t} className={`tab-btn${tab===t?' on':''}`} onClick={()=>setTab(t)}>{l}</button>
+          ))}
+        </div>
+        {tab==='results' && (() => {
+          const rank = getRank(stu, state.students);
+          return (
+            <>
+              {rank<=3 && (
+                <div className="anim-scaleIn" style={{
+                  marginBottom:14,padding:'14px 18px',borderRadius:'var(--r)',
+                  background:rank===1?'linear-gradient(135deg,rgba(245,166,35,.12),rgba(245,166,35,.04))':rank===2?'linear-gradient(135deg,rgba(148,163,184,.12),rgba(148,163,184,.04))':'linear-gradient(135deg,rgba(194,98,61,.12),rgba(194,98,61,.04))',
+                  border:`1px solid ${rank===1?'rgba(245,166,35,.3)':rank===2?'rgba(148,163,184,.25)':'rgba(194,98,61,.25)'}`,
+                  display:'flex',alignItems:'center',gap:14
+                }}>
+                  <span style={{fontSize:'2rem'}}>{rank===1?'🥇':rank===2?'🥈':'🥉'}</span>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:'.95rem'}}>
+                      {rank===1?'Outstanding Performance!':rank===2?'Excellent Work!':'Great Achievement!'}
+                    </div>
+                    <div style={{fontSize:'.78rem',color:'var(--ink2)',marginTop:2}}>
+                      You are ranked <strong>#{rank}</strong> in your class with an average of <strong style={{color:col(avg(stu.marks))}}>{avg(stu.marks)}%</strong>. Keep it up! 🌟
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="card anim-fadeIn">
+            <div className="card-hdr"><span className="card-hdr-title">Subject-wise Results</span><span style={{fontSize:'.72rem',color:'var(--muted)'}}>Academic Year {state.academicYear}</span></div>
+            <table>
+              <thead><tr><th>Subject</th><th>Max</th><th>Obtained</th><th>%</th><th>Grade</th><th>Status</th></tr></thead>
+              <tbody>
+                {Object.keys(stu.marks).map((k, i) => {
+                  const m=stu.marks[k], pct=Math.round(m/MAX_MARK*100), g2=grade(pct);
+                  return (
+                    <tr key={k} className="anim-fadeUp" style={{animationDelay:`${i*.04}s`}}>
+                      <td style={{fontWeight:600}}>{k.replace(/([A-Z])/g,' $1').trim()}</td>
+                      <td>{MAX_MARK}</td>
+                      <td>
+                        <div style={{display:'flex',alignItems:'center',gap:8}}>
+                          <strong style={{color:col(pct)}}>{m}</strong>
+                          <div className="mark-track" style={{width:56}}><div className="mark-fill" style={{width:`${pct}%`,background:grad(pct)}}/></div>
+                        </div>
+                      </td>
+                      <td style={{color:col(pct),fontWeight:700}}>{pct}%</td>
+                      <td><span className={`gbadge ${gClass(g2)}`}>{g2}</span></td>
+                      <td style={{color:m>=state.passMark?'var(--green)':'var(--rose)',fontWeight:600}}>{m>=state.passMark?'✅ Pass':'❌ Fail'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+            </>
+          );
+        })()}
+        {tab==='canvas' && (
+          <div className="card anim-fadeIn">
+            <div className="card-hdr"><span className="card-hdr-title">Visual Analysis</span></div>
+            <div className="canvas-wrap">
+              <canvas ref={canvasRef} width={680} height={320} style={{maxWidth:'100%'}}/>
+              <canvas ref={pieRef} width={300} height={300} style={{maxWidth:'100%'}}/>
+            </div>
+          </div>
+        )}
+        {tab==='subjects' && (
+          <div className="subj-grid">
+            {Object.keys(stu.marks).map((k,i) => {
+              const m=stu.marks[k], pct=Math.round(m/MAX_MARK*100);
+              return (
+                <div key={k} className="subj-card" style={{animationDelay:`${i*.05}s`}}>
+                  <div className="subj-card-name">{k.replace(/([A-Z])/g,' $1').trim()}</div>
+                  <div className="subj-card-mark" style={{color:col(pct)}}>{m}</div>
+                  <div style={{fontSize:'.72rem',color:'var(--muted)'}}>{pct}% · <span className={`gbadge ${gClass(grade(pct))}`}>{grade(pct)}</span></div>
+                  <div className="mark-track"><div className="mark-fill" style={{width:`${pct}%`,background:grad(pct)}}/></div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {tab==='attendance' && <AttendanceView stu={stu} readonly/>}
+        {tab==='notices' && <StudentNoticesTab/>}
+        {tab==='paper' && <PaperSeeingRequest stu={stu}/>}
+      </div>
+      {changePwOpen && <ChangeStudentPwModal stu={stu} onClose={()=>setChangePwOpen(false)}/>}
+      <NotifPanel open={stuNotifOpen} onClose={()=>setStuNotifOpen(false)}/>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: CHANGE STUDENT PASSWORD MODAL
+// ═══════════════════════════════════════════════════════
+function ChangeStudentPwModal({ stu, onClose }) {
+  const { dispatch } = useApp();
+  const [curr, setCurr] = useState('');
+  const [nw, setNw] = useState('');
+  const [conf, setConf] = useState('');
+  const [showCurr, setShowCurr] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConf, setShowConf] = useState(false);
+  const [errs, setErrs] = useState({});
+
+  const save = () => {
+    const e = {};
+    if (curr !== stu.dob) e.curr = 'Current password is incorrect';
+    if (!validatePwStrength(nw)) e.nw = 'Min 8 chars, 1 uppercase, 1 number required';
+    if (nw !== conf) e.conf = 'Passwords do not match';
+    setErrs(e);
+    if (Object.keys(e).length) return;
+    dispatch({ type:'UPDATE_STUDENT', student:{ ...stu, dob:nw } });
+    showToast('✅ Password changed successfully!','#12c98a');
+    onClose();
+  };
+
+  return (
+    <div className="m-overlay open">
+      <div className="modal" style={{maxWidth:420}}>
+        <div className="m-title">🔑 Change Password</div>
+        <div className="m-sub">Your new password must be at least 8 characters with an uppercase letter and a number.</div>
+        <div className="fg">
+          <label className="fl">Current Password</label>
+          <div className="pw-wrap">
+            <input className={`fi${errs.curr?' err':''}`} type={showCurr?'text':'password'} value={curr} onChange={e=>setCurr(e.target.value)} placeholder="Current password"/>
+            <button className="pw-toggle" type="button" onClick={()=>setShowCurr(v=>!v)}>{showCurr?'🙈':'👁'}</button>
+          </div>
+          {errs.curr && <div className="fi-err show">{errs.curr}</div>}
+        </div>
+        <div className="fg">
+          <label className="fl">New Password</label>
+          <div className="pw-wrap">
+            <input className={`fi${errs.nw?' err':''}`} type={showNew?'text':'password'} value={nw} onChange={e=>setNw(e.target.value)} placeholder="Min 8 chars, 1 uppercase, 1 number"/>
+            <button className="pw-toggle" type="button" onClick={()=>setShowNew(v=>!v)}>{showNew?'🙈':'👁'}</button>
+          </div>
+          <PwStrengthBar pw={nw}/>
+          {errs.nw && <div className="fi-err show">{errs.nw}</div>}
+        </div>
+        <div className="fg">
+          <label className="fl">Confirm New Password</label>
+          <div className="pw-wrap">
+            <input className={`fi${errs.conf?' err':''}`} type={showConf?'text':'password'} value={conf} onChange={e=>setConf(e.target.value)} placeholder="Repeat new password"/>
+            <button className="pw-toggle" type="button" onClick={()=>setShowConf(v=>!v)}>{showConf?'🙈':'👁'}</button>
+          </div>
+          {errs.conf && <div className="fi-err show">{errs.conf}</div>}
+        </div>
+        <div className="m-actions">
+          <button className="btn-cancel" onClick={onClose}>Cancel</button>
+          <button className="btn-save" onClick={save}>💾 Save Password</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: STUDENT NOTICES TAB
+// ═══════════════════════════════════════════════════════
+function StudentNoticesTab() {
+  const notifs = useNotifs();
+  const [filter, setFilter] = useState('all');
+  const visible = filter==='all' ? notifs : notifs.filter(n=>n.cat===filter);
+  const unread  = notifs.filter(n=>n.u).length;
+
+  return (
+    <div className="anim-fadeIn">
+      <div className="card" style={{marginBottom:14}}>
+        <div className="card-hdr" style={{flexWrap:'wrap',gap:8}}>
+          <span className="card-hdr-title">📢 School Notices & Notifications</span>
+          <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
+            {unread>0 && (
+              <span style={{fontSize:'.7rem',background:'rgba(245,71,107,.1)',color:'var(--rose)',padding:'2px 8px',borderRadius:50,fontWeight:700}}>
+                {unread} unread
+              </span>
+            )}
+            {unread>0 && <button className="tb-btn" style={{padding:'3px 10px',fontSize:'.72rem'}} onClick={markAllNotifRead}>Mark all read</button>}
+          </div>
+        </div>
+        <div style={{display:'flex',gap:4,padding:'8px 14px',borderBottom:'1px solid var(--border)',flexWrap:'wrap'}}>
+          {['all','academic','admin','attendance','alert','system'].map(f=>(
+            <button key={f} onClick={()=>setFilter(f)} style={{
+              padding:'3px 10px',borderRadius:50,fontSize:'.68rem',fontWeight:700,cursor:'pointer',
+              background:filter===f?'rgba(77,141,255,.15)':'transparent',
+              border:filter===f?'1px solid var(--blue)':'1px solid var(--border)',
+              color:filter===f?'var(--blue)':'var(--muted)',textTransform:'capitalize'
+            }}>{f}</button>
+          ))}
+        </div>
+        <div style={{maxHeight:420,overflowY:'auto'}}>
+          {visible.length===0 && (
+            <div style={{padding:32,textAlign:'center',color:'var(--muted)'}}>
+              <div style={{fontSize:'2rem',marginBottom:8}}>🎉</div>
+              <div style={{fontSize:'.84rem'}}>No notices in this category</div>
+            </div>
+          )}
+          {visible.map(n=>(
+            <div key={n.id} onClick={()=>markNotifRead(n.id)} style={{
+              padding:'14px 18px',borderBottom:'1px solid var(--border)',
+              display:'flex',gap:12,alignItems:'flex-start',cursor:'pointer',
+              background:n.u?'rgba(77,141,255,.03)':'transparent',
+              transition:'background .15s'
+            }}>
+              <div style={{
+                width:38,height:38,borderRadius:10,flexShrink:0,
+                background:`${CAT_COLORS[n.cat]||'var(--blue)'}18`,
+                display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem'
+              }}>{n.icon}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:n.u?700:600,fontSize:'.86rem',display:'flex',alignItems:'center',gap:7}}>
+                  {n.t}
+                  {n.u && <span style={{width:7,height:7,borderRadius:'50%',background:'var(--blue)',display:'inline-block',flexShrink:0}}/>}
+                </div>
+                <div style={{fontSize:'.78rem',color:'var(--ink2)',marginTop:3,lineHeight:1.6}}>{n.s}</div>
+                <div style={{fontSize:'.68rem',color:'var(--muted)',marginTop:4,display:'flex',gap:8}}>
+                  <span>{n.tm}</span>
+                  <span style={{color:CAT_COLORS[n.cat]||'var(--blue)',textTransform:'capitalize',fontWeight:600}}>#{n.cat}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{padding:'8px 16px',borderTop:'1px solid var(--border)',fontSize:'.7rem',color:'var(--muted)',textAlign:'center'}}>
+          {notifs.length} total notices · {unread} unread
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: ATTENDANCE VIEW (shared student + admin)
+// ═══════════════════════════════════════════════════════
+function AttendanceView({ stu, readonly = false, onUpdate }) {
+  const [month, setMonth] = useState(0);
+  ensureAtt(stu);
+
+  const monthData = stu.att[month] || [];
+  const wdays = monthData.filter(x=>x!=='w');
+  const p=wdays.filter(x=>x==='p').length, ab=wdays.filter(x=>x==='a').length, h=wdays.filter(x=>x==='h').length;
+  const pct = wdays.length ? Math.round(p/wdays.length*100) : 0;
+
+  const cycle = (di) => {
+    if (readonly) return;
+    const cur = stu.att[month][di];
+    const map = {p:'a', a:'h', h:'p'};
+    stu.att[month][di] = map[cur] || 'p';
+    if (onUpdate) onUpdate();
+  };
+
+  const bulkMark = (status) => {
+    if (readonly) return;
+    stu.att[month] = stu.att[month].map(v => v==='w' ? 'w' : status);
+    if (onUpdate) onUpdate();
+  };
+
+  const firstDow = new Date(ATT_YEAR, month, 1).getDay();
+
+  // 6-month summary row
+  const summary = ATT_MONTHS.map((mn, mi) => {
+    const md = stu.att[mi]||[];
+    const wd = md.filter(x=>x!=='w');
+    const pp = wd.filter(x=>x==='p').length;
+    const pct2 = wd.length ? Math.round(pp/wd.length*100) : 0;
+    return { mn, pp, wd:wd.length, pct:pct2 };
+  });
+  const totalP = summary.reduce((a,s)=>a+s.pp,0);
+  const totalD = summary.reduce((a,s)=>a+s.wd,0);
+  const overallPct = totalD ? Math.round(totalP/totalD*100) : 0;
+
+  return (
+    <div className="anim-fadeIn">
+      {/* 6-month summary */}
+      <div className="card" style={{marginBottom:14}}>
+        <div className="card-hdr">
+          <span className="card-hdr-title">6-Month Summary</span>
+          <span style={{fontSize:'.76rem',color:overallPct>=75?'var(--green)':'var(--rose)',fontWeight:700}}>
+            Overall: {overallPct}% {overallPct<75?'⚠ Below 75%':''}
+          </span>
+        </div>
+        <div className="card-body">
+          <div className="att-6m-grid">
+            {summary.map(({mn,pp,wd,pct:p2},i) => (
+              <div key={mn} className="att-6m-card" style={{animationDelay:`${i*.05}s`}}>
+                <div className="att-6m-name">{mn} {ATT_YEAR}</div>
+                <div className="att-6m-pct" style={{color:p2>=75?'var(--green)':p2>=60?'var(--amber)':'var(--rose)'}}>{p2}%</div>
+                <div style={{fontSize:'.68rem',color:'var(--muted)'}}>{pp}/{wd} days</div>
+                <div className="att-6m-bar"><div className="att-6m-fill" style={{width:`${p2}%`,background:p2>=75?'var(--green)':p2>=60?'var(--amber)':'var(--rose)'}}/></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Monthly calendar */}
+      <div className="card">
+        <div className="card-hdr">
+          <span className="card-hdr-title">{ATT_MONTHS[month]} {ATT_YEAR}</span>
+          {!readonly && <span style={{fontSize:'.72rem',color:'var(--muted)'}}>Click day to cycle P→A→H</span>}
+        </div>
+        <div className="card-body">
+          <div className="att-month-tabs">
+            {ATT_MONTHS.map((mn,i) => (
+              <button key={mn} className={`att-month-tab${i===month?' on':''}`} onClick={()=>setMonth(i)}>{mn.slice(0,3)}</button>
+            ))}
+          </div>
+          {!readonly && (
+            <div className="att-bulk-bar">
+              <span style={{fontSize:'.74rem',color:'var(--muted)'}}>Bulk:</span>
+              <button className="att-bulk-btn p" onClick={()=>bulkMark('p')}>✅ All Present</button>
+              <button className="att-bulk-btn a" onClick={()=>bulkMark('a')}>❌ All Absent</button>
+              <button className="att-bulk-btn h" onClick={()=>bulkMark('h')}>🏖 All Holiday</button>
+            </div>
+          )}
+          <div className="att-stats-row">
+            <span className="att-stat-chip p">✅ Present: {p}</span>
+            <span className="att-stat-chip a">❌ Absent: {ab}</span>
+            <span className="att-stat-chip h">🏖 Holiday: {h}</span>
+            <span className="att-stat-chip pct">📊 {pct}%</span>
+          </div>
+          <div className="att-dow-labels">
+            {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=><div key={d} className="att-dow-lbl">{d}</div>)}
+          </div>
+          <div className="att-full-grid">
+            {Array(firstDow).fill(null).map((_,i)=><div key={`e${i}`}/>)}
+            {monthData.map((status, di) => (
+              <div key={di} className={`att-full-cell att-${status}`} onClick={()=>cycle(di)}
+                title={`${ATT_MONTHS[month]} ${di+1}: ${status==='p'?'Present':status==='a'?'Absent':status==='h'?'Holiday':'Weekend'}`}
+                style={{cursor:readonly||status==='w'?'default':'pointer'}}>
+                <span style={{fontSize:'.66rem',fontWeight:700}}>{di+1}</span>
+                <span style={{fontSize:'.52rem',opacity:.7}}>{{p:'P',a:'A',h:'H',w:''}[status]}</span>
+              </div>
+            ))}
+          </div>
+          <div className="att-legend">
+            <div className="att-li"><div className="att-ld" style={{background:'rgba(18,201,138,.4)'}}/>Present</div>
+            <div className="att-li"><div className="att-ld" style={{background:'rgba(245,71,107,.3)'}}/>Absent</div>
+            <div className="att-li"><div className="att-ld" style={{background:'rgba(245,166,35,.3)'}}/>Holiday</div>
+            <div className="att-li"><div className="att-ld" style={{background:'var(--surf)'}}/>Weekend</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: FACULTY FORGOT PASSWORD MODAL
+// ═══════════════════════════════════════════════════════
+const FACULTY_SECURITY_QUESTIONS = [
+  { q: "What is the name of the school where you currently teach?", hint: "Try your school name" },
+  { q: "What subject do you primarily teach?", hint: "Try your main subject" },
+  { q: "What year did you join this institution?", hint: "Try the academic year (e.g. 2024)" },
+  { q: "What is the admin recovery code?", hint: "Default code is: ADMIN2024" },
+];
+// The correct answers to Faculty security questions (for demo, fixed answers)
+const FACULTY_SEC_ANSWERS = ["Government Higher Secondary School", "All Subjects", "2024", "ADMIN2024"];
+
+function FacultyForgotPasswordModal({ onClose }) {
+  const { state, dispatch } = useApp();
+  const [step, setStep] = useState(1); // 1=verify username, 2=security question, 3=reset
+  const [username, setUsername] = useState('');
+  const [qIdx, setQIdx] = useState(null);
+  const [answer, setAnswer] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confPw, setConfPw] = useState('');
+  const [showNew, setShowNew] = useState(false);
+  const [showConf, setShowConf] = useState(false);
+  const [err, setErr] = useState('');
+
+  const verifyUsername = () => {
+    setErr('');
+    if (!username.trim()) { setErr('Please enter your username.'); return; }
+    if (username.trim().toLowerCase() !== 'admin') { setErr('❌ No faculty account found with this username.'); return; }
+    // Pick a random security question
+    const idx = Math.floor(Math.random() * FACULTY_SECURITY_QUESTIONS.length);
+    setQIdx(idx);
+    setStep(2);
+  };
+
+  const verifyAnswer = () => {
+    setErr('');
+    if (!answer.trim()) { setErr('Please provide an answer.'); return; }
+    const correct = FACULTY_SEC_ANSWERS[qIdx];
+    if (answer.trim().toLowerCase() !== correct.toLowerCase()) {
+      setErr(`❌ Incorrect answer. (${FACULTY_SECURITY_QUESTIONS[qIdx].hint})`);
+      return;
+    }
+    setStep(3);
+  };
+
+  const resetPassword = () => {
+    setErr('');
+    if (!validatePwStrength(newPw)) { setErr('Password must be 8+ chars, include an uppercase letter and a number.'); return; }
+    if (newPw !== confPw) { setErr('❌ Passwords do not match.'); return; }
+    dispatch({ type:'SET_SETTINGS', settings:{ adminPassword: newPw } });
+    Storage.save(SK.adminPw, newPw);
+    addNotif('Admin Password Reset', 'Faculty/Admin password was reset via the Forgot Password flow.', '🔑', 'admin');
+    showToast('✅ Faculty password reset successfully!', '#12c98a');
+    onClose();
+  };
+
+  const stepLabels = ['Verify Username', 'Security Question', 'New Password'];
+
+  return (
+    <div className="m-overlay open" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal" style={{maxWidth:480}}>
+        <div className="m-title" style={{background:'linear-gradient(135deg,var(--violet),var(--blue))',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>
+          🔑 Faculty Password Reset
+        </div>
+        <div className="m-sub">Securely reset your admin / faculty account password</div>
+
+        {/* Step indicator */}
+        <div className="fp-steps">
+          {stepLabels.map((lbl,i)=>(
+            <div key={i} className={`fp-step${step>i+1?' done':step===i+1?' active':''}`}>
+              <div className="fp-step-num" style={step===i+1?{background:'var(--violet)',borderColor:'var(--violet)'}:{}}>{step>i+1?'✓':i+1}</div>
+              <div className="fp-step-lbl">{lbl}</div>
+            </div>
+          ))}
+        </div>
+
+        {step===1 && (
+          <>
+            <div style={{background:'rgba(157,111,245,.07)',border:'1px solid rgba(157,111,245,.2)',borderRadius:'var(--rs)',padding:'10px 14px',marginBottom:16,fontSize:'.78rem',color:'var(--ink2)',lineHeight:1.6}}>
+              🏫 This is the faculty / administrator password reset. Enter your admin username to begin.
+            </div>
+            <div className="fg">
+              <label className="fl">Admin Username</label>
+              <input className="fi vi" value={username} onChange={e=>setUsername(e.target.value)}
+                onKeyDown={e=>e.key==='Enter'&&verifyUsername()} placeholder="e.g. admin" autoFocus/>
+            </div>
+            {err && <div className="f-err-main">{err}</div>}
+            <div className="m-actions">
+              <button className="btn-cancel" onClick={onClose}>Cancel</button>
+              <button className="btn-primary" style={{background:'linear-gradient(135deg,var(--violet),var(--blue))'}} onClick={verifyUsername}>Continue →</button>
+            </div>
+          </>
+        )}
+
+        {step===2 && qIdx!==null && (
+          <>
+            <div style={{background:'rgba(157,111,245,.07)',border:'1px solid rgba(157,111,245,.2)',borderRadius:'var(--rs)',padding:'10px 14px',marginBottom:14,fontSize:'.8rem',color:'var(--ink2)'}}>
+              Account found: <strong style={{color:'var(--ink)'}}>admin</strong> · Faculty / Administrator
+            </div>
+            <div className="fg">
+              <label className="fl">Security Question</label>
+              <div style={{padding:'11px 14px',background:'var(--surf2)',border:'1px solid var(--border)',borderRadius:'var(--rs)',fontSize:'.84rem',color:'var(--ink2)',marginBottom:10,lineHeight:1.6}}>
+                {FACULTY_SECURITY_QUESTIONS[qIdx].q}
+              </div>
+              <input className="fi vi" value={answer} onChange={e=>setAnswer(e.target.value)}
+                onKeyDown={e=>e.key==='Enter'&&verifyAnswer()} placeholder="Your answer…" autoFocus/>
+              <div style={{fontSize:'.68rem',color:'var(--muted)',marginTop:5}}>
+                💡 Demo tip: {FACULTY_SECURITY_QUESTIONS[qIdx].hint}
+              </div>
+            </div>
+            {err && <div className="f-err-main">{err}</div>}
+            <div className="m-actions">
+              <button className="btn-cancel" onClick={()=>{setStep(1);setErr('');setAnswer('');}}>← Back</button>
+              <button className="btn-primary" style={{background:'linear-gradient(135deg,var(--violet),var(--blue))'}} onClick={verifyAnswer}>Verify →</button>
+            </div>
+          </>
+        )}
+
+        {step===3 && (
+          <>
+            <div style={{background:'rgba(18,201,138,.07)',border:'1px solid rgba(18,201,138,.2)',borderRadius:'var(--rs)',padding:'10px 14px',marginBottom:16,fontSize:'.8rem',color:'var(--green)'}}>
+              ✅ Identity verified! Set a strong new password for the admin account.
+            </div>
+            <div className="fg">
+              <label className="fl">New Password</label>
+              <div className="pw-wrap">
+                <input className="fi vi" type={showNew?'text':'password'} value={newPw}
+                  onChange={e=>setNewPw(e.target.value)} placeholder="Min 8 chars, 1 uppercase, 1 number" autoFocus/>
+                <button className="pw-toggle" type="button" onClick={()=>setShowNew(v=>!v)}>{showNew?'🙈':'👁'}</button>
+              </div>
+              {newPw && <PwStrengthBar pw={newPw}/>}
+            </div>
+            <div className="fg">
+              <label className="fl">Confirm New Password</label>
+              <div className="pw-wrap">
+                <input className="fi vi" type={showConf?'text':'password'} value={confPw}
+                  onChange={e=>setConfPw(e.target.value)} placeholder="Repeat new password"/>
+                <button className="pw-toggle" type="button" onClick={()=>setShowConf(v=>!v)}>{showConf?'🙈':'👁'}</button>
+              </div>
+            </div>
+            {err && <div className="f-err-main">{err}</div>}
+            <div className="m-actions">
+              <button className="btn-cancel" onClick={()=>{setStep(2);setErr('');}}>← Back</button>
+              <button className="btn-primary" style={{background:'linear-gradient(135deg,var(--violet),var(--blue))'}} onClick={resetPassword}>🔑 Reset Password</button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: ADMIN LOGIN
+// ═══════════════════════════════════════════════════════
+function AdminLogin() {
+  const { state, goTo } = useApp();
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const [show, setShow] = useState(false);
+  const [errs, setErrs] = useState({});
+  const [mainErr, setMainErr] = useState('');
+  const [forgotOpen, setForgotOpen] = useState(false);
+
+  const login = () => {
+    const e = {};
+    if (!user.trim()) e.user = true;
+    if (!pass.trim()) e.pass = true;
+    setErrs(e);
+    setMainErr('');
+    if (Object.keys(e).length) return;
+    if (user === 'admin' && pass === state.adminPassword) goTo('admin-dash');
+    else setMainErr('❌ Invalid credentials.');
+  };
+
+  return (
+    <div className="page-full">
+      <Topbar badge="Admin" badgeClass="badge-a" rightSlot={
+        <button className="tb-btn" onClick={()=>goTo('landing')}>← Back</button>
+      }/>
+      <div className="page-wrap">
+        <div className="login-card lc-a">
+          <div className="login-logo">🏫</div>
+          <div className="login-h">Admin Login</div>
+          <div className="login-s">Teacher / Administrator access. Full management permissions.</div>
+          <div className="fg">
+            <label className="fl">Username</label>
+            <input className={`fi vi${errs.user?' err':''}`} value={user} onChange={e=>setUser(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()} placeholder="admin" autoComplete="username"/>
+            {errs.user && <div className="fi-err show">Username is required</div>}
+          </div>
+          <div className="fg">
+            <label className="fl">Password</label>
+            <div className="pw-wrap">
+              <input className={`fi vi${errs.pass?' err':''}`} type={show?'text':'password'} value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()} placeholder="••••••••" autoComplete="current-password"/>
+              <button className="pw-toggle" type="button" onClick={()=>setShow(v=>!v)}>{show?'🙈':'👁'}</button>
+            </div>
+            {errs.pass && <div className="fi-err show">Password is required</div>}
+          </div>
+          <button className="btn-primary" style={{background:'linear-gradient(135deg,var(--violet),var(--blue))'}} onClick={login}>Login to Admin Panel →</button>
+          {mainErr && <div className="f-err-main">{mainErr}</div>}
+          <div style={{textAlign:'center',marginTop:10}}>
+            <button className="fp-link" style={{color:'var(--violet)'}} onClick={()=>setForgotOpen(true)}>🔑 Forgot Password?</button>
+          </div>
+          <div className="demo-box">Username <strong>admin</strong> / Password <strong>Admin@2024</strong></div>
+        </div>
+      </div>
+      {forgotOpen && <FacultyForgotPasswordModal onClose={()=>setForgotOpen(false)}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// ADMIN SECTIONS
+// ═══════════════════════════════════════════════════════
+function OverviewSection() {
+  const { state } = useApp();
+  const { students, passMark } = state;
+  const total = students.length;
+  const avgs = students.map(s => avg(s.marks));
+  const cAvg = avgs.length ? Math.round(avgs.reduce((a,b)=>a+b,0)/avgs.length) : 0;
+  const passed = students.filter(s=>isPass(s,passMark)).length;
+  const top = [...students].sort((a,b)=>avg(b.marks)-avg(a.marks))[0];
+  const attAvg = students.length ? Math.round(students.reduce((a,s)=>{
+    ensureAtt(s);
+    const p=s.att.flat().filter(x=>x==='p').length, d=s.att.flat().filter(x=>x!=='w').length;
+    return a+(d?p/d*100:0);
+  },0)/students.length) : 0;
+
+  const subAvgs = SUBJECTS.map(sub => students.length ? Math.round(students.reduce((s2,s)=>s2+(s.marks[subKey(sub)]||0),0)/students.length) : 0);
+  const grd = {'A+':0,'A':0,'B+':0,'B':0,'C':0,'D':0,'F':0};
+  students.forEach(s=>{const g2=grade(avg(s.marks));grd[g2]=(grd[g2]||0)+1;});
+  const gc = {'A+':col(95),'A':col(85),'B+':col(75),'B':col(65),'C':col(55),'D':col(45),'F':col(20)};
+
+  return (
+    <div>
+      <div className="ov-grid">
+        <div className="ov-card anim-scaleIn" style={{animationDelay:'.0s'}}><div className="ov-ico">🎓</div><div className="ov-num">{total}</div><div className="ov-lbl">Total Students</div></div>
+        <div className="ov-card anim-scaleIn" style={{animationDelay:'.05s'}}><div className="ov-ico">📊</div><div className="ov-num" style={{color:col(cAvg)}}>{cAvg}%</div><div className="ov-lbl">Class Average</div></div>
+        <div className="ov-card anim-scaleIn" style={{animationDelay:'.1s'}}><div className="ov-ico">✅</div><div className="ov-num" style={{color:'var(--green)'}}>{passed}</div><div className="ov-lbl">Passed</div></div>
+        <div className="ov-card anim-scaleIn" style={{animationDelay:'.15s'}}><div className="ov-ico">❌</div><div className="ov-num" style={{color:'var(--rose)'}}>{total-passed}</div><div className="ov-lbl">Failed</div></div>
+        <div className="ov-card anim-scaleIn" style={{animationDelay:'.2s'}}><div className="ov-ico">🏆</div><div className="ov-num" style={{fontSize:'1rem',lineHeight:1.3}}>{top?top.name.split(' ')[0]:'—'}</div><div className="ov-lbl">Top Performer</div></div>
+        <div className="ov-card anim-scaleIn" style={{animationDelay:'.25s'}}><div className="ov-ico">📅</div><div className="ov-num" style={{color:attAvg>=75?'var(--green)':'var(--amber)'}}>{attAvg}%</div><div className="ov-lbl">Avg Attendance</div></div>
+      </div>
+      <div className="two-col">
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">Subject Averages</span></div>
+          <div className="card-body">
+            {SUBJECTS.map((sub,i)=>(
+              <div key={sub} className="bar-row" style={{animationDelay:`${i*.04}s`}}>
+                <div className="bar-lbl" style={{fontSize:'.74rem'}}>{sub}</div>
+                <div className="bar-track"><div className="bar-fill" style={{width:`${subAvgs[i]}%`,background:grad(subAvgs[i])}}>{subAvgs[i]}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">Grade Distribution</span></div>
+          <div className="card-body">
+            {Object.entries(grd).map(([g2,c])=>(
+              <div key={g2} className="dist-row">
+                <div className="dist-lbl" style={{color:gc[g2]}}>{g2}</div>
+                <div className="dist-track"><div className="dist-fill" style={{width:`${total?c/total*100:0}%`,background:gc[g2]}}>{c>0?c+' students':''}</div></div>
+                <div className="dist-cnt">{c}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="card" style={{marginTop:14}}>
+        <div className="card-hdr"><span className="card-hdr-title">Subject Canvas Chart</span></div>
+        <div className="canvas-wrap">
+          <BarChart labels={SUBJECTS} values={subAvgs} title="Subject-wise Class Averages" id="ov-canvas"/>
+        </div>
+      </div>
+      <div className="two-col" style={{marginTop:14}}>
+        <div className="card">
+          <div className="card-hdr">
+            <span className="card-hdr-title">⚠️ Students Needing Attention</span>
+            <span style={{fontSize:'.7rem',color:'var(--muted)'}}>{students.filter(s=>!isPass(s,passMark)||att75Pct(s)<75).length} students</span>
+          </div>
+          <div className="card-body" style={{padding:'0 0 8px 0',maxHeight:200,overflowY:'auto'}}>
+            {students.filter(s=>!isPass(s,passMark)||att75Pct(s)<75).length===0
+              ? <div style={{padding:'16px 18px',color:'var(--muted)',fontSize:'.82rem'}}>✅ All students are on track!</div>
+              : students.filter(s=>!isPass(s,passMark)||att75Pct(s)<75).map(s=>{
+                  const a2=avg(s.marks), attP=att75Pct(s);
+                  return (
+                    <div key={s.id} style={{padding:'10px 18px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10}}>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:600,fontSize:'.84rem'}}>{s.name}</div>
+                        <div style={{fontSize:'.72rem',color:'var(--muted)'}}>{s.roll} · {s.cls}</div>
+                      </div>
+                      {!isPass(s,passMark) && <span style={{fontSize:'.68rem',padding:'2px 7px',borderRadius:50,background:'rgba(245,71,107,.1)',color:'var(--rose)',fontWeight:700}}>Failed</span>}
+                      {attP<75 && <span style={{fontSize:'.68rem',padding:'2px 7px',borderRadius:50,background:'rgba(245,166,35,.1)',color:'var(--amber)',fontWeight:700}}>Att {attP}%</span>}
+                      <span style={{fontWeight:700,fontSize:'.82rem',color:col(a2)}}>{a2}%</span>
+                    </div>
+                  );
+                })
+            }
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">📈 Subject Pass Rates</span></div>
+          <div className="card-body">
+            {SUBJECTS.map(sub=>{
+              const k=subKey(sub), a2=total?Math.round(students.reduce((s2,s)=>s2+(s.marks[k]||0),0)/total):0;
+              const passW=total?Math.round(students.filter(s=>(s.marks[k]||0)>=passMark).length/total*100):0;
+              return (
+                <div key={sub} style={{marginBottom:9}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:'.76rem',marginBottom:3}}>
+                    <span style={{color:'var(--ink2)'}}>{sub}</span>
+                    <span style={{color:col(a2),fontWeight:700}}>{a2}% avg · <span style={{color:passW>=75?'var(--green)':'var(--rose)'}}>{passW}% pass</span></span>
+                  </div>
+                  <div style={{height:6,background:'var(--surf3)',borderRadius:50,overflow:'hidden'}}>
+                    <div style={{height:'100%',width:`${a2}%`,background:grad(a2),borderRadius:50,transition:'width 1s'}}/>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Student Table ────────────────────────────────────────────────────────────
+function StudentsSection({ onAdd, onEdit, onView }) {
+  const { state, dispatch } = useApp();
+  const [q, setQ] = useState('');
+  const [filterCls, setFilterCls] = useState('');
+  const [sort, setSort] = useState('roll');
+  const [page, setPage] = useState(1);
+  const [suggestions, setSuggestions] = useState([]);
+  const { students, passMark } = state;
+
+  const classes = useMemo(() => [...new Set(students.map(s=>s.cls))].sort(), [students]);
+
+  const filtered = useMemo(() => {
+    let list = students.filter(s =>
+      (!q || s.name.toLowerCase().includes(q.toLowerCase()) || s.roll.toLowerCase().includes(q.toLowerCase())) &&
+      (!filterCls || s.cls === filterCls)
+    );
+    if (sort==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
+    else if (sort==='avg-d') list.sort((a,b)=>avg(b.marks)-avg(a.marks));
+    else if (sort==='avg-a') list.sort((a,b)=>avg(a.marks)-avg(b.marks));
+    else list.sort((a,b)=>a.roll.localeCompare(b.roll));
+    return list;
+  }, [students, q, filterCls, sort]);
+
+  const pages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paged = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+
+  const searchRef = useRef(null);
+  const debouncedSuggest = useCallback(debounce((v) => {
+    if (!v) { setSuggestions([]); return; }
+    setSuggestions(students.filter(s=>s.name.toLowerCase().includes(v.toLowerCase())||s.roll.toLowerCase().includes(v.toLowerCase())).slice(0,5));
+  }, 150), [students]);
+
+  const deleteStudent = (id) => {
+    if (!confirm('Delete this student permanently?')) return;
+    dispatch({ type:'DELETE_STUDENT', id });
+    showToast('🗑 Student deleted.', '#f5476b');
+  };
+
+  const exportCSV = () => {
+    let csv = `Roll,Name,Class,Gender,Category,${SUBJECTS.join(',')},Total,Avg%,Grade,Status\n`;
+    students.forEach(s => {
+      const mv=SUBJECTS.map(sub=>s.marks[subKey(sub)]||0), tot=mv.reduce((a,b)=>a+b,0), a2=Math.round(tot/SUBJECTS.length);
+      csv += `${s.roll},"${s.name}",${s.cls},${s.gender},${s.cat||''},${mv.join(',')},${tot},${a2}%,${grade(a2)},${isPass(s,passMark)?'Pass':'Fail'}\n`;
+    });
+    dl(csv, 'class_results.csv');
+  };
+
+  return (
+    <div>
+      <div className="toolbar">
+        <div className="search-wrap">
+          <input ref={searchRef} className="s-box" placeholder="🔍 Search name or roll…" value={q} onChange={e=>{setQ(e.target.value);debouncedSuggest(e.target.value);setPage(1);}}
+            onBlur={()=>setTimeout(()=>setSuggestions([]),200)}/>
+          {suggestions.length>0 && (
+            <div className="suggest-box open">
+              {suggestions.map(s=>(
+                <div key={s.id} className="sug-item" onMouseDown={()=>{setQ(s.roll);setSuggestions([]);}}>
+                  <span>{s.name}</span>
+                  <span className="sug-roll">{s.roll}</span>
+                  <span style={{marginLeft:'auto',fontSize:'.72rem',color:col(avg(s.marks))}}>{avg(s.marks)}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <select className="f-sel" value={filterCls} onChange={e=>{setFilterCls(e.target.value);setPage(1);}}>
+          <option value="">All Classes</option>
+          {classes.map(c=><option key={c}>{c}</option>)}
+        </select>
+        <select className="f-sel" value={sort} onChange={e=>setSort(e.target.value)}>
+          <option value="roll">Sort: Roll</option>
+          <option value="name">Sort: Name A-Z</option>
+          <option value="avg-d">Sort: Marks ↓</option>
+          <option value="avg-a">Sort: Marks ↑</option>
+        </select>
+        <button className="btn-out" onClick={exportCSV}>📥 CSV</button>
+        <button className="btn-out" onClick={()=>exportAdminPDF(state.students,state.schoolName,state.academicYear,state.passMark)}>📄 PDF</button>
+        <button className="btn-add" onClick={onAdd}>＋ Add Student</button>
+      </div>
+      <div className="card">
+        <table>
+          <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Gender</th><th>Category</th><th>Avg %</th><th>Grade</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            {paged.length ? paged.map((s,i) => {
+              const a=avg(s.marks), g2=grade(a), p=isPass(s,passMark);
+              return (
+                <tr key={s.id} style={{animationDelay:`${i*.03}s`}}>
+                  <td style={{fontFamily:'var(--mono)',fontSize:'.76rem',color:'var(--blue)'}}>{s.roll}</td>
+                  <td style={{fontWeight:600}}>{s.name}</td>
+                  <td>{s.cls}</td>
+                  <td style={{color:'var(--muted)'}}>{s.gender}</td>
+                  <td style={{color:'var(--muted)',fontSize:'.76rem'}}>{s.cat||''}</td>
+                  <td style={{color:col(a),fontWeight:700}}>{a}%</td>
+                  <td><span className={`gbadge ${gClass(g2)}`}>{g2}</span></td>
+                  <td><span className="st-dot" style={{background:p?col(90):col(20)}}/>{p?'Pass':'Fail'}</td>
+                  <td>
+                    <button className="act-btn v" onClick={()=>onView(s.id)}>👁</button>
+                    <button className="act-btn e" onClick={()=>onEdit(s.id)}>✏</button>
+                    <button className="act-btn d" onClick={()=>deleteStudent(s.id)}>🗑</button>
+                  </td>
+                </tr>
+              );
+            }) : (
+              <tr><td colSpan={9} style={{textAlign:'center',color:'var(--muted)',padding:28}}>No students found.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {pages > 1 && (
+        <div className="pag">
+          <span className="pag-info">Showing {paged.length} of {filtered.length}</span>
+          <button className="pag-btn" disabled={page===1} onClick={()=>setPage(p=>p-1)}>←</button>
+          {Array.from({length:pages},(_,i)=>(
+            <button key={i+1} className={`pag-btn${page===i+1?' on':''}`} onClick={()=>setPage(i+1)}>{i+1}</button>
+          ))}
+          <button className="pag-btn" disabled={page===pages} onClick={()=>setPage(p=>p+1)}>→</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Marks Entry ──────────────────────────────────────────────────────────────
+function MarksSection() {
+  const { state, dispatch } = useApp();
+  const [stuId, setStuId] = useState('');
+  const [markVals, setMarkVals] = useState({});
+  const [preview, setPreview] = useState(null);
+
+  const stu = useMemo(() => state.students.find(s=>s.id===+stuId), [state.students, stuId]);
+
+  useEffect(() => {
+    if (stu) {
+      const mv = {};
+      SUBJECTS.forEach(sub => { mv[subKey(sub)] = stu.marks[subKey(sub)] || 0; });
+      setMarkVals(mv);
+    }
+  }, [stuId]);
+
+  useEffect(() => {
+    if (!stu) { setPreview(null); return; }
+    const vals = Object.values(markVals).map(Number);
+    const tot = vals.reduce((a,b)=>a+b, 0);
+    const a2 = SUBJECTS.length ? Math.round(tot/SUBJECTS.length) : 0;
+    setPreview({ tot, a2, g: grade(a2) });
+  }, [markVals, stu]);
+
+  const save = () => {
+    if (!stu) return;
+    const invalid = Object.entries(markVals).some(([,v])=>+v<0||+v>MAX_MARK||isNaN(+v));
+    if (invalid) { showToast('⚠ Fix mark values first.','#f5a623'); return; }
+    const updated = { ...stu, marks: Object.fromEntries(Object.entries(markVals).map(([k,v])=>[k,+v])) };
+    dispatch({ type:'UPDATE_STUDENT', student: updated });
+    addNotif(`Marks Updated`,`${stu.name}'s marks have been saved (Avg: ${Object.values(markVals).reduce((a,b)=>+a+ +b,0)/SUBJECTS.length|0}%).`,'📝','academic');
+    showToast(`✅ Marks saved for ${stu.name}!`, '#12c98a');
+  };
+
+  return (
+    <div className="marks-card anim-fadeUp">
+      <div className="fg">
+        <label className="fl">Select Student</label>
+        <select className="fi vi" value={stuId} onChange={e=>setStuId(e.target.value)}>
+          <option value="">-- Choose Student --</option>
+          {state.students.map(s=><option key={s.id} value={s.id}>{s.roll} — {s.name} ({s.cls})</option>)}
+        </select>
+      </div>
+      {stu && (
+        <>
+          <div style={{fontSize:'.8rem',color:'var(--ink2)',padding:'8px 0'}}>
+            Current Avg: <strong style={{color:col(avg(stu.marks))}}>{avg(stu.marks)}%</strong> · Grade: <strong>{grade(avg(stu.marks))}</strong>
+          </div>
+          <div className="mk-grid">
+            {SUBJECTS.map(sub => {
+              const k = subKey(sub);
+              const v = markVals[k] ?? 0;
+              const err = +v < 0 || +v > MAX_MARK;
+              return (
+                <div key={k} className="fg">
+                  <label className="fl">{sub}</label>
+                  <input className={`fi vi${err?' err':''}`} type="number" min={0} max={MAX_MARK} value={v}
+                    onChange={e=>setMarkVals(prev=>({...prev,[k]:e.target.value}))}/>
+                  {err && <div className="fi-err show">Must be 0–{MAX_MARK}</div>}
+                </div>
+              );
+            })}
+          </div>
+          {preview && (
+            <div className="mk-preview">
+              Preview → Avg: <strong style={{color:col(preview.a2)}}>{preview.a2}%</strong> · Grade: <strong>{preview.g}</strong> · Total: <strong>{preview.tot}/{SUBJECTS.length*MAX_MARK}</strong>
+            </div>
+          )}
+          <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+            <button className="btn-save" onClick={save}>💾 Save Marks</button>
+            <button className="btn-out" onClick={()=>buildStudentPDF(stu,state.schoolName,state.academicYear,state.passMark,state.students)}>📄 PDF Report</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Analytics ────────────────────────────────────────────────────────────────
+function AnalyticsSection() {
+  const { state } = useApp();
+  const { students, passMark } = state;
+  const total = students.length;
+  const grd = {'A+':0,'A':0,'B+':0,'B':0,'C':0,'D':0,'F':0};
+  students.forEach(s=>{const g2=grade(avg(s.marks));grd[g2]=(grd[g2]||0)+1;});
+  const gc = {'A+':col(95),'A':col(85),'B+':col(75),'B':col(65),'C':col(55),'D':col(45),'F':col(20)};
+  const passed = students.filter(s=>isPass(s,passMark)).length;
+  const pct = total ? Math.round(passed/total*100) : 0;
+  const subAvgs = SUBJECTS.map(sub=>total?Math.round(students.reduce((s2,s)=>s2+(s.marks[subKey(sub)]||0),0)/total):0);
+
+  return (
+    <div>
+      <div className="analytics-grid">
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">Grade Distribution</span></div>
+          <div className="card-body">
+            {Object.entries(grd).map(([g2,c])=>(
+              <div key={g2} className="dist-row">
+                <div className="dist-lbl" style={{color:gc[g2]}}>{g2}</div>
+                <div className="dist-track"><div className="dist-fill" style={{width:`${total?c/total*100:0}%`,background:gc[g2]}}>{c>0?c+' students':''}</div></div>
+                <div className="dist-cnt">{c}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">Pass / Fail Ratio</span></div>
+          <div className="card-body">
+            <div style={{textAlign:'center',marginBottom:10}}>
+              <div style={{fontFamily:"'Crimson Pro',serif",fontSize:'2.2rem',fontWeight:600,color:'var(--green)'}}>{pct}%</div>
+              <div style={{fontSize:'.74rem',color:'var(--muted)'}}>Pass Rate</div>
+            </div>
+            <div className="dist-row"><div className="dist-lbl" style={{color:'var(--green)'}}>Pass</div><div className="dist-track"><div className="dist-fill" style={{width:`${pct}%`,background:'var(--green)'}}>{passed} students</div></div><div className="dist-cnt">{passed}</div></div>
+            <div className="dist-row" style={{marginTop:7}}><div className="dist-lbl" style={{color:'var(--rose)'}}>Fail</div><div className="dist-track"><div className="dist-fill" style={{width:`${100-pct}%`,background:'var(--rose)'}}>{total-passed>0?`${total-passed} students`:''}</div></div><div className="dist-cnt">{total-passed}</div></div>
+          </div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-hdr"><span className="card-hdr-title">Subject Canvas Chart</span></div>
+        <div className="canvas-wrap">
+          <BarChart labels={SUBJECTS} values={subAvgs} title="Subject-wise Class Averages" id="an-canvas"/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Toppers ──────────────────────────────────────────────────────────────────
+function ToppersSection() {
+  const { state } = useApp();
+  const sorted = [...state.students].sort((a,b)=>avg(b.marks)-avg(a.marks));
+  const rc = ['g','s','b'];
+  const top5 = sorted.slice(0,5);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const isDark = state.theme === 'dark';
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const W=canvas.width, H=canvas.height, pad={t:24,r:10,b:60,l:14};
+    const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+    const barW=cW/top5.length*.5, gap=cW/top5.length;
+    const colors=['#f5a623','#94a3b8','#c2623d','#4d8dff','#12c98a'];
+    top5.forEach((s,i)=>{
+      const a=avg(s.marks), bH=cH*(a/MAX_MARK), x=pad.l+gap*i+(gap-barW)/2, y=pad.t+cH-bH;
+      ctx.fillStyle=colors[i];
+      const r=Math.min(4,barW/2);
+      ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+barW-r,y);
+      ctx.arcTo(x+barW,y,x+barW,y+r,r); ctx.lineTo(x+barW,y+bH);
+      ctx.lineTo(x,y+bH); ctx.arcTo(x,y,x+r,y,r); ctx.closePath(); ctx.fill();
+      ctx.fillStyle=isDark?'rgba(255,255,255,.8)':'rgba(0,0,0,.7)';
+      ctx.font='bold 10px DM Mono'; ctx.textAlign='center';
+      ctx.fillText(a+'%',x+barW/2,y-4);
+      ctx.fillStyle=isDark?'rgba(255,255,255,.5)':'rgba(0,0,0,.5)';
+      ctx.font='9px Syne';
+      ctx.fillText(s.name.split(' ')[0],x+barW/2,pad.t+cH+12);
+    });
+  }, [top5, state.theme]);
+
+  return (
+    <div>
+      <div className="two-col">
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">Class Leaderboard</span></div>
+          <div className="card-body" style={{padding:'0 16px'}}>
+            {sorted.map((s,i)=>{
+              const a=avg(s.marks);
+              return (
+                <div key={s.id} className="lb-row anim-slideRight" style={{animationDelay:`${i*.04}s`}}>
+                  <div className={`lb-rank${rc[i]?' '+rc[i]:''}`}>{i+1}</div>
+                  <div className="lb-name">{s.name} <span style={{color:'var(--muted)',fontSize:'.72rem'}}>{s.cls}</span></div>
+                  <div className="lb-bar"><div className="lb-fill" style={{width:`${a}%`}}/></div>
+                  <div className="lb-pct" style={{color:col(a)}}>{a}%</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">Top 5 Chart</span></div>
+          <div className="canvas-wrap">
+            <canvas ref={canvasRef} width={320} height={240} style={{maxWidth:'100%'}}/>
+          </div>
+        </div>
+      </div>
+      <div className="a-title" style={{fontSize:'1rem',marginTop:16}}>Subject Toppers</div>
+      <div className="st-grid">
+        {SUBJECTS.map((sub,i)=>{
+          const k=subKey(sub), top2=[...state.students].sort((a,b)=>(b.marks[k]||0)-(a.marks[k]||0))[0];
+          if(!top2) return null;
+          return (
+            <div key={sub} className="st-card" style={{animationDelay:`${i*.05}s`}}>
+              <div style={{fontSize:'.7rem',color:'var(--muted)',marginBottom:5}}>{sub}</div>
+              <div style={{fontWeight:700,fontSize:'.88rem'}}>{top2.name.split(' ')[0]}</div>
+              <div style={{fontFamily:"'Crimson Pro',serif",fontSize:'1.5rem',fontWeight:600,color:col(top2.marks[k]),marginTop:2}}>{top2.marks[k]}/{MAX_MARK}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── React Demo ───────────────────────────────────────────────────────────────
+function ReactDemoSection() {
+  const { state } = useApp();
+  const [count, setCount] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [renderCount, setRenderCount] = useState(0);
+
+  useEffect(() => { setRenderCount(c=>c+1); }, [count, selected]);
+
+  const selectRandom = () => {
+    const s = state.students[Math.floor(Math.random()*state.students.length)];
+    setSelected(s);
+    showToast(`Props passed: ${s.name}`, '#4d8dff');
+  };
+
+  return (
+    <div>
+      <div className="card anim-fadeUp">
+        <div className="card-hdr"><span className="card-hdr-title">React 18 State + Props Demo</span></div>
+        <div className="card-body">
+          <div style={{fontSize:'.82rem',color:'var(--ink2)',marginBottom:14,lineHeight:1.7}}>
+            This demonstrates <strong>React hooks</strong> (useState, useEffect, useReducer, useContext, useMemo, useCallback, useRef), <strong>Context API</strong>, and the <strong>Reducer pattern</strong>.
+          </div>
+          <div style={{display:'flex',gap:10,marginBottom:14,flexWrap:'wrap'}}>
+            <button className="btn-add" onClick={()=>{ setCount(c=>c+1); showToast(`State updated! Count: ${count+1}`,'#00d4b4'); }}>➕ Increment State</button>
+            <button className="btn-out" onClick={()=>{ setCount(0); setSelected(null); showToast('State reset!','#9d6ff5'); }}>🔄 Reset</button>
+            <button className="btn-out" onClick={selectRandom}>🎲 Random Student (Props)</button>
+          </div>
+          <div className="react-demo">
+            <div className="react-demo-title">// App State (useState hooks)</div>
+            <div className="react-cards">
+              <div className="react-comp"><div className="rc-lbl">count (state)</div><div className="rc-val">{count}</div></div>
+              <div className="react-comp"><div className="rc-lbl">selectedStudent</div><div className="rc-val" style={{fontSize:'.85rem'}}>{selected?selected.name:'null'}</div></div>
+              <div className="react-comp"><div className="rc-lbl">students.length (context)</div><div className="rc-val">{state.students.length}</div></div>
+              <div className="react-comp"><div className="rc-lbl">renderCount</div><div className="rc-val">{renderCount}</div></div>
+            </div>
+          </div>
+          {selected && (
+            <div className="react-demo" style={{marginTop:12}}>
+              <div className="react-demo-title">// StudentCard Component (Props)</div>
+              <div style={{padding:12,background:'var(--surf)',border:'1px solid var(--border)',borderRadius:'var(--rs)'}}>
+                <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+                  <div style={{width:44,height:44,borderRadius:'50%',background:'var(--surf3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem'}}>🎓</div>
+                  <div>
+                    <div style={{fontWeight:700}}>{selected.name}</div>
+                    <div style={{fontSize:'.74rem',color:'var(--muted)'}}>{selected.roll} · {selected.cls}</div>
+                  </div>
+                  <div style={{marginLeft:'auto'}}><span className={`gbadge ${gClass(grade(avg(selected.marks)))}`}>{grade(avg(selected.marks))}</span></div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginTop:12}}>
+                  {Object.keys(selected.marks).map(k=>(
+                    <div key={k} style={{background:'var(--surf2)',padding:8,borderRadius:'var(--rxs)',fontSize:'.72rem'}}>
+                      <div style={{color:'var(--muted)'}}>{k.replace(/([A-Z])/g,' $1').trim()}</div>
+                      <div style={{fontWeight:700,color:col(Math.round(selected.marks[k]/MAX_MARK*100))}}>{selected.marks[k]}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Settings ─────────────────────────────────────────────────────────────────
+function SettingsSection() {
+  const { state, dispatch } = useApp();
+  const [school, setSchool] = useState(state.schoolName);
+  const [year, setYear] = useState(state.academicYear);
+  const [pass, setPass] = useState(state.passMark);
+  const [currPw, setCurrPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confPw, setConfPw] = useState('');
+
+  const saveSettings = () => {
+    dispatch({ type:'SET_SETTINGS', settings:{ schoolName:school, academicYear:year, passMark:+pass } });
+    Storage.save(SK.settings, { schoolName:school, academicYear:year, passMark:+pass });
+    showToast('✅ Settings saved!', '#12c98a');
+  };
+
+  const changePw = () => {
+    if (currPw !== state.adminPassword) { showToast('❌ Current password incorrect','#f5476b'); return; }
+    if (!validatePwStrength(newPw)) { showToast('⚠ Password must be 8+ chars, 1 uppercase, 1 number','#f5a623'); return; }
+    if (newPw !== confPw) { showToast('⚠ Passwords do not match','#f5a623'); return; }
+    dispatch({ type:'SET_SETTINGS', settings:{ adminPassword:newPw } });
+    Storage.save(SK.adminPw, newPw);
+    setCurrPw(''); setNewPw(''); setConfPw('');
+    showToast('✅ Admin password updated!', '#12c98a');
+  };
+
+  return (
+    <div>
+      <div className="settings-card anim-fadeUp">
+        <div className="settings-title">School Information</div>
+        <div className="fg"><label className="fl">School Name</label><input className="fi" value={school} onChange={e=>setSchool(e.target.value)}/></div>
+        <div className="fg"><label className="fl">Academic Year</label><input className="fi" value={year} onChange={e=>setYear(e.target.value)}/></div>
+        <div className="fg"><label className="fl">Passing Marks (out of 100)</label><input className="fi" type="number" min={1} max={100} value={pass} onChange={e=>setPass(e.target.value)}/></div>
+        <button className="btn-save" onClick={saveSettings}>💾 Save Settings</button>
+      </div>
+      <div className="settings-card anim-fadeUp" style={{animationDelay:'.1s'}}>
+        <div className="settings-title">🔑 Change Admin Password</div>
+        <div className="fg"><label className="fl">Current Password</label><input className="fi vi" type="password" value={currPw} onChange={e=>setCurrPw(e.target.value)} placeholder="Current password"/></div>
+        <div className="fg"><label className="fl">New Password</label><input className="fi vi" type="password" value={newPw} onChange={e=>setNewPw(e.target.value)} placeholder="Min 8 chars"/><PwStrengthBar pw={newPw}/></div>
+        <div className="fg"><label className="fl">Confirm Password</label><input className="fi vi" type="password" value={confPw} onChange={e=>setConfPw(e.target.value)} placeholder="Repeat new password"/></div>
+        <button className="btn-save" onClick={changePw}>Update Password</button>
+      </div>
+      <div className="settings-card anim-fadeUp" style={{animationDelay:'.2s'}}>
+        <div className="settings-title">🔔 Notification Center</div>
+        <div style={{fontSize:'.8rem',color:'var(--ink2)',marginBottom:14,lineHeight:1.7}}>
+          Send custom notifications or test the notification system. These appear in both Admin and Student dashboards.
+        </div>
+        <NotifTester/>
+      </div>
+    </div>
+  );
+}
+
+function NotifTester() {
+  const [msg, setMsg] = useState('');
+  const [cat, setCat] = useState('system');
+  const icons = { academic:'📋', admin:'🏫', attendance:'📅', alert:'⚠️', system:'💾' };
+  const send = () => {
+    if (!msg.trim()) { showToast('⚠ Enter a message first','#f5a623'); return; }
+    addNotif('Admin Announcement', msg.trim(), icons[cat]||'🔔', cat);
+    setMsg('');
+  };
+  return (
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,marginBottom:10}}>
+        <input className="fi" value={msg} onChange={e=>setMsg(e.target.value)} placeholder="Type a notification message…" onKeyDown={e=>e.key==='Enter'&&send()}/>
+        <select className="f-sel" value={cat} onChange={e=>setCat(e.target.value)}>
+          <option value="academic">📋 Academic</option>
+          <option value="admin">🏫 Admin</option>
+          <option value="attendance">📅 Attendance</option>
+          <option value="alert">⚠️ Alert</option>
+          <option value="system">💾 System</option>
+        </select>
+      </div>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+        <button className="btn-save" onClick={send}>🔔 Send Notification</button>
+        <button className="btn-out" onClick={markAllNotifRead}>✅ Mark All Read</button>
+        <button className="btn-out" style={{borderColor:'var(--rose)',color:'var(--rose)'}} onClick={clearAllNotifs}>🗑 Clear All</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Quick Search ──────────────────────────────────────────────────────────────
+function QuickSearchSection({ onView }) {
+  const { state } = useApp();
+  const [q, setQ] = useState('');
+  const results = useMemo(() => {
+    if (!q.trim()) return [];
+    return state.students.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())||s.roll.toLowerCase().includes(q.toLowerCase())||s.cls.toLowerCase().includes(q.toLowerCase()));
+  }, [q, state.students]);
+
+  return (
+    <div>
+      <div className="settings-card anim-fadeUp">
+        <div className="fg"><label className="fl">Search Student</label><input className="fi" placeholder="Name, roll or class…" value={q} onChange={e=>setQ(e.target.value)}/></div>
+      </div>
+      {results.length > 0 && (
+        <div className="card anim-fadeIn">
+          <table>
+            <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Avg</th><th>Grade</th><th>Actions</th></tr></thead>
+            <tbody>
+              {results.map((s,i) => {
+                const a=avg(s.marks), g2=grade(a);
+                return (
+                  <tr key={s.id} style={{animationDelay:`${i*.04}s`}}>
+                    <td style={{fontFamily:'var(--mono)',color:'var(--blue)',fontSize:'.76rem'}}>{s.roll}</td>
+                    <td>{s.name}</td><td>{s.cls}</td>
+                    <td style={{color:col(a),fontWeight:700}}>{a}%</td>
+                    <td><span className={`gbadge ${gClass(g2)}`}>{g2}</span></td>
+                    <td><button className="act-btn v" onClick={()=>onView(s.id)}>👁 View</button></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {q && results.length===0 && <div style={{color:'var(--muted)',fontSize:'.84rem',padding:20}}>No results found.</div>}
+    </div>
+  );
+}
+
+// ── Attendance Section ────────────────────────────────────────────────────────
+function AttMgmtSection() {
+  const { state, dispatch } = useApp();
+  const [stuId, setStuId] = useState('');
+  const [, forceUpdate] = useReducer(x=>x+1, 0);
+  const stu = useMemo(() => state.students.find(s=>s.id===+stuId), [state.students, stuId]);
+
+  useEffect(() => { if (stu) ensureAtt(stu); }, [stu]);
+
+  const save = () => {
+    if (!stu) { showToast('⚠ Select a student first','#f5a623'); return; }
+    dispatch({ type:'UPDATE_STUDENT', student:{...stu} });
+    showToast(`✅ Attendance saved for ${stu.name}!`,'#00d4b4');
+  };
+
+  const exportCSV = () => {
+    if (!stu) return;
+    let csv = `Student: ${stu.name} (${stu.roll})\nMonth,Working Days,Present,Absent,Holiday,%\n`;
+    ATT_MONTHS.forEach((mn,mi)=>{
+      const md=stu.att[mi]||[], wd=md.filter(x=>x!=='w');
+      const p=wd.filter(x=>x==='p').length, ab=wd.filter(x=>x==='a').length, h=wd.filter(x=>x==='h').length;
+      csv += `${mn} ${ATT_YEAR},${wd.length},${p},${ab},${h},${wd.length?Math.round(p/wd.length*100):0}%\n`;
+    });
+    dl(csv, `${stu.roll}_attendance.csv`);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',gap:12,marginBottom:14,flexWrap:'wrap',alignItems:'center'}}>
+        <div className="fg" style={{margin:0,flex:1,minWidth:200}}>
+          <select className="fi vi" value={stuId} onChange={e=>setStuId(e.target.value)}>
+            <option value="">-- Select Student --</option>
+            {state.students.map(s=><option key={s.id} value={s.id}>{s.roll} — {s.name} ({s.cls})</option>)}
+          </select>
+        </div>
+        <button className="btn-save" onClick={save}>💾 Save Attendance</button>
+        <button className="btn-out" onClick={exportCSV}>📥 Export CSV</button>
+      </div>
+      {stu ? (
+        <AttendanceView stu={stu} readonly={false} onUpdate={forceUpdate}/>
+      ) : (
+        <div style={{color:'var(--muted)',fontSize:'.88rem',padding:40,textAlign:'center',animation:'fadeIn .4s ease'}}>
+          ☝️ Select a student above to manage their attendance.
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: STUDENT MODAL
+// ═══════════════════════════════════════════════════════
+function StudentModal({ editId, onClose }) {
+  const { state, dispatch } = useApp();
+  const editing = editId ? state.students.find(s=>s.id===editId) : null;
+  const [form, setForm] = useState(editing ? {
+    name:editing.name, roll:editing.roll, cls:editing.cls, dob:editing.dob,
+    gender:editing.gender, cat:editing.cat||'General', email:editing.email||'', phone:editing.phone||''
+  } : { name:'', roll:'', cls:'', dob:'', gender:'Male', cat:'General', email:'', phone:'' });
+  const [errs, setErrs] = useState({});
+
+  const set = (k, v) => setForm(f=>({...f,[k]:v}));
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = 'Required';
+    if (!form.roll.trim()) e.roll = 'Required';
+    if (!form.cls.trim()) e.cls = 'Required';
+    if (!/^\d{4}$/.test(form.dob)||+form.dob<1990||+form.dob>2015) e.dob = 'Enter a valid birth year (1990–2015)';
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
+    if (form.phone && !/^[6-9]\d{9}$/.test(form.phone)) e.phone = 'Invalid 10-digit number';
+    return e;
+  };
+
+  const save = () => {
+    const e = validate();
+    setErrs(e);
+    if (Object.keys(e).length) { showToast('⚠ Please fix highlighted errors.','#f5a623'); return; }
+    if (editing) {
+      dispatch({ type:'UPDATE_STUDENT', student:{ ...editing, ...form, roll:form.roll.toUpperCase() } });
+      showToast('✅ Student updated!');
+    } else {
+      const dm = {}; SUBJECTS.forEach(sub=>dm[subKey(sub)]=0);
+      dispatch({ type:'ADD_STUDENT', student:{ id:state.nextId, ...form, roll:form.roll.toUpperCase(), marks:dm, att:genAtt(.85) } });
+      dispatch({ type:'INC_NEXT_ID' });
+      addNotif('New Student Enrolled',`${form.name} (${form.roll.toUpperCase()}) added to Class ${form.cls}.`,'🎓','admin');
+      showToast('✅ Student added!');
+    }
+    onClose();
+  };
+
+  return (
+    <div className="m-overlay open">
+      <div className="modal">
+        <div className="m-title">{editing?'Edit Student':'Add New Student'}</div>
+        <div className="m-sub">{editing?'Update student information.':'Fill in all required (*) fields.'}</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          {[['name','Name *'],['roll','Roll No *'],['cls','Class *'],['dob','Birth Year *']].map(([k,l])=>(
+            <div key={k} className="fg">
+              <label className="fl">{l}</label>
+              <input className={`fi${errs[k]?' err':''}`} value={form[k]} onChange={e=>set(k,e.target.value)}/>
+              {errs[k] && <div className="fi-err show">{errs[k]}</div>}
+            </div>
+          ))}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          <div className="fg">
+            <label className="fl">Gender</label>
+            <select className="fi" value={form.gender} onChange={e=>set('gender',e.target.value)}>
+              <option>Male</option><option>Female</option><option>Other</option>
+            </select>
+          </div>
+          <div className="fg">
+            <label className="fl">Category</label>
+            <select className="fi" value={form.cat} onChange={e=>set('cat',e.target.value)}>
+              <option>General</option><option>OBC</option><option>SC</option><option>ST</option>
+            </select>
+          </div>
+        </div>
+        <div className="fg">
+          <label className="fl">Email</label>
+          <input className={`fi${errs.email?' err':''}`} type="email" value={form.email} onChange={e=>set('email',e.target.value)} placeholder="student@school.edu"/>
+          {errs.email && <div className="fi-err show">{errs.email}</div>}
+        </div>
+        <div className="fg">
+          <label className="fl">Phone</label>
+          <input className={`fi${errs.phone?' err':''}`} type="tel" value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="10-digit number" maxLength={10}/>
+          {errs.phone && <div className="fi-err show">{errs.phone}</div>}
+        </div>
+        <div className="m-actions">
+          <button className="btn-cancel" onClick={onClose}>Cancel</button>
+          <button className="btn-save" onClick={save}>💾 {editing?'Update':'Save'} Student</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: VIEW STUDENT MODAL
+// ═══════════════════════════════════════════════════════
+function ViewStudentModal({ stuId, onClose }) {
+  const { state } = useApp();
+  const s = state.students.find(x=>x.id===stuId);
+  if (!s) return null;
+  const a=avg(s.marks), g2=grade(a), p=isPass(s,state.passMark);
+  return (
+    <div className="m-overlay open">
+      <div className="modal" style={{maxWidth:580}}>
+        <div className="m-title">{s.name}</div>
+        <div className="m-sub">{s.roll} · {s.cls} · {s.gender} · {s.cat||'General'} · {s.email||'N/A'}</div>
+        <div className="stat-grid">
+          <div className="stat-card"><div className="sc-lbl">Average</div><div className="sc-val" style={{color:col(a)}}>{a}%</div></div>
+          <div className="stat-card"><div className="sc-lbl">Grade</div><div className="sc-val">{g2}</div></div>
+          <div className="stat-card"><div className="sc-lbl">Status</div><div className="sc-val" style={{fontSize:'1.1rem'}}>{p?'✅ Pass':'❌ Fail'}</div></div>
+          <div className="stat-card"><div className="sc-lbl">Rank</div><div className="sc-val">#{getRank(s, state.students)}</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Status</th></tr></thead>
+          <tbody>
+            {Object.keys(s.marks).map(k=>{
+              const m=s.marks[k], pct=Math.round(m/MAX_MARK*100), g3=grade(pct);
+              return (
+                <tr key={k}>
+                  <td>{k.replace(/([A-Z])/g,' $1').trim()}</td>
+                  <td style={{fontWeight:700}}>{m}/{MAX_MARK}</td>
+                  <td style={{color:col(pct),fontWeight:700}}>{pct}%</td>
+                  <td><span className={`gbadge ${gClass(g3)}`}>{g3}</span></td>
+                  <td style={{color:m>=state.passMark?'var(--green)':'var(--rose)',fontWeight:600}}>{m>=state.passMark?'✅ Pass':'❌ Fail'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className="m-actions">
+          <button className="btn-cancel" onClick={onClose}>Close</button>
+          <button className="btn-save" onClick={()=>buildStudentPDF(s,state.schoolName,state.academicYear,state.passMark,state.students)}>📄 PDF</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// NOTIFICATION STORE  (shared across all panels)
+// ═══════════════════════════════════════════════════════
+const INIT_NOTIFS = [
+  { id:1, t:'Results Published',    s:'Final exam results are now available for all students.',  u:true,  tm:'2h ago',  icon:'📋', cat:'academic' },
+  { id:2, t:'New Student Enrolled', s:'STU008 Meera Iyer has been added to Class 10-A.',         u:true,  tm:'5h ago',  icon:'🎓', cat:'admin' },
+  { id:3, t:'Attendance Updated',   s:'Jan–Jun 2025 attendance records have been saved.',         u:true,  tm:'1d ago',  icon:'📅', cat:'attendance' },
+  { id:4, t:'Low Attendance Alert', s:'STU005 Sneha Patel is below 75% attendance threshold.',   u:false, tm:'2d ago',  icon:'⚠️', cat:'alert' },
+  { id:5, t:'System Backup',        s:'Automatic data backup completed successfully.',            u:false, tm:'3d ago',  icon:'💾', cat:'system' },
+  { id:6, t:'Exam Schedule Set',    s:'Unit Test 2 is scheduled for next week.',                 u:false, tm:'4d ago',  icon:'📝', cat:'academic' },
+];
+
+// Global notif state outside React (so both student & admin share same data)
+let _globalNotifs = [...INIT_NOTIFS];
+let _notifListeners = [];
+function subscribeNotifs(fn) { _notifListeners.push(fn); return ()=>{ _notifListeners=_notifListeners.filter(f=>f!==fn); }; }
+function notifyAll() { _notifListeners.forEach(f=>f([..._globalNotifs])); }
+function markNotifRead(id) { _globalNotifs=_globalNotifs.map(n=>n.id===id?{...n,u:false}:n); notifyAll(); }
+function markAllNotifRead() { _globalNotifs=_globalNotifs.map(n=>({...n,u:false})); notifyAll(); }
+function clearAllNotifs() { _globalNotifs=[]; notifyAll(); }
+function addNotif(t,s,icon='🔔',cat='system') {
+  const id=Date.now();
+  _globalNotifs=[{id,t,s,u:true,tm:'just now',icon,cat},..._globalNotifs];
+  notifyAll();
+  showToast(`🔔 ${t}`,'#4d8dff');
+}
+
+function useNotifs() {
+  const [notifs, setNotifs] = useState(_globalNotifs);
+  useEffect(()=>subscribeNotifs(setNotifs), []);
+  return notifs;
+}
+
+const CAT_COLORS = { academic:'var(--blue)', admin:'var(--violet)', attendance:'var(--amber)', alert:'var(--rose)', system:'var(--cyan)' };
+
+// ═══════════════════════════════════════════════════════
+// PAPER SEEING REQUEST STORE  (global, shared across panels)
+// ═══════════════════════════════════════════════════════
+let _paperReqs = [];
+let _paperListeners = [];
+function subscribePaperReqs(fn) { _paperListeners.push(fn); return ()=>{ _paperListeners=_paperListeners.filter(f=>f!==fn); }; }
+function notifyPaperAll() { _paperListeners.forEach(f=>f([..._paperReqs])); }
+function addPaperReq(req) {
+  const id=Date.now();
+  _paperReqs=[{id,...req,status:'pending',createdAt:new Date().toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}, ..._paperReqs];
+  notifyPaperAll();
+  addNotif('Paper Seeing Request',`${req.studentName} (${req.roll}) requested to see ${req.subject} paper.`,'📄','academic');
+}
+function updatePaperReq(id, status, adminNote='') {
+  _paperReqs=_paperReqs.map(r=>r.id===id?{...r,status,adminNote,resolvedAt:new Date().toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}:r);
+  notifyPaperAll();
+}
+function usePaperReqs() {
+  const [reqs, setReqs] = useState(_paperReqs);
+  useEffect(()=>subscribePaperReqs(setReqs), []);
+  return reqs;
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: FORGOT PASSWORD MODAL
+// ═══════════════════════════════════════════════════════
+const SECURITY_QUESTIONS = [
+  "What is your mother's first name?",
+  "What city were you born in?",
+  "What is the name of your primary school?",
+  "What is your favourite colour?",
+];
+
+function ForgotPasswordModal({ onClose, students, onPasswordReset }) {
+  const [step, setStep] = useState(1); // 1=find account, 2=security question, 3=reset
+  const [roll, setRoll] = useState('');
+  const [foundStu, setFoundStu] = useState(null);
+  const [answer, setAnswer] = useState('');
+  const [secQ, setSecQ] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [confPass, setConfPass] = useState('');
+  const [err, setErr] = useState('');
+  const [showNew, setShowNew] = useState(false);
+
+  // For demo: security question stored in student record (or use birth year as fallback)
+  const findAccount = () => {
+    setErr('');
+    if (!roll.trim()) { setErr('Please enter your roll number.'); return; }
+    const stu = students.find(s=>s.roll===roll.trim().toUpperCase());
+    if (!stu) { setErr('❌ No account found with this roll number.'); return; }
+    setFoundStu(stu);
+    // Pick a security question (we derive it from student data for demo)
+    setSecQ(SECURITY_QUESTIONS[stu.id % SECURITY_QUESTIONS.length]);
+    setStep(2);
+  };
+
+  const verifyAnswer = () => {
+    setErr('');
+    if (!answer.trim()) { setErr('Please provide an answer.'); return; }
+    // Demo: accept the student's DOB year as the answer (simulating stored answer)
+    if (answer.trim() !== foundStu.dob) {
+      setErr('❌ Incorrect answer. (Hint: Try your birth year)'); return;
+    }
+    setStep(3);
+  };
+
+  const resetPassword = () => {
+    setErr('');
+    if (!newPass.trim() || newPass.length < 4) { setErr('Password must be at least 4 characters.'); return; }
+    if (newPass !== confPass) { setErr('❌ Passwords do not match.'); return; }
+    onPasswordReset(foundStu.id, newPass);
+    showToast('✅ Password reset successfully!', '#12c98a');
+    onClose();
+  };
+
+  const stepLabels = ['Find Account', 'Verify Identity', 'Reset Password'];
+
+  return (
+    <div className="m-overlay open" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal" style={{maxWidth:460}}>
+        <div className="m-title">🔑 Forgot Password</div>
+        <div className="m-sub">Reset your student account password</div>
+
+        {/* Step indicator */}
+        <div className="fp-steps">
+          {stepLabels.map((lbl,i)=>(
+            <div key={i} className={`fp-step${step>i+1?' done':step===i+1?' active':''}`}>
+              <div className="fp-step-num">{step>i+1?'✓':i+1}</div>
+              <div className="fp-step-lbl">{lbl}</div>
+            </div>
+          ))}
+        </div>
+
+        {step===1 && (
+          <>
+            <div className="fg">
+              <label className="fl">Roll Number</label>
+              <input className="fi" value={roll} onChange={e=>setRoll(e.target.value)} onKeyDown={e=>e.key==='Enter'&&findAccount()} placeholder="e.g. STU001" autoFocus/>
+            </div>
+            {err && <div className="f-err-main">{err}</div>}
+            <div className="m-actions">
+              <button className="btn-cancel" onClick={onClose}>Cancel</button>
+              <button className="btn-primary" onClick={findAccount}>Find Account →</button>
+            </div>
+          </>
+        )}
+
+        {step===2 && foundStu && (
+          <>
+            <div style={{background:'rgba(77,141,255,.07)',border:'1px solid rgba(77,141,255,.18)',borderRadius:'var(--rs)',padding:'10px 14px',marginBottom:14,fontSize:'.8rem',color:'var(--ink2)'}}>
+              Found: <strong style={{color:'var(--ink)'}}>{foundStu.name}</strong> · {foundStu.roll} · Class {foundStu.cls}
+            </div>
+            <div className="fg">
+              <label className="fl">Security Question</label>
+              <div style={{padding:'10px 14px',background:'var(--surf2)',border:'1px solid var(--border)',borderRadius:'var(--rs)',fontSize:'.84rem',color:'var(--ink2)',marginBottom:10}}>{secQ}</div>
+              <input className="fi" value={answer} onChange={e=>setAnswer(e.target.value)} onKeyDown={e=>e.key==='Enter'&&verifyAnswer()} placeholder="Your answer…" autoFocus/>
+              <div style={{fontSize:'.68rem',color:'var(--muted)',marginTop:5}}>💡 Demo tip: enter your birth year as the answer</div>
+            </div>
+            {err && <div className="f-err-main">{err}</div>}
+            <div className="m-actions">
+              <button className="btn-cancel" onClick={()=>{setStep(1);setErr('');}}>← Back</button>
+              <button className="btn-primary" onClick={verifyAnswer}>Verify →</button>
+            </div>
+          </>
+        )}
+
+        {step===3 && (
+          <>
+            <div style={{background:'rgba(18,201,138,.07)',border:'1px solid rgba(18,201,138,.2)',borderRadius:'var(--rs)',padding:'10px 14px',marginBottom:14,fontSize:'.8rem',color:'var(--green)'}}>
+              ✅ Identity verified! Set a new password for <strong>{foundStu.name}</strong>
+            </div>
+            <div className="fg">
+              <label className="fl">New Password</label>
+              <div className="pw-wrap">
+                <input className="fi" type={showNew?'text':'password'} value={newPass} onChange={e=>setNewPass(e.target.value)} placeholder="New password (min 4 chars)" autoFocus/>
+                <button className="pw-toggle" type="button" onClick={()=>setShowNew(v=>!v)}>{showNew?'🙈':'👁'}</button>
+              </div>
+              {newPass && <PwStrengthBar pw={newPass}/>}
+            </div>
+            <div className="fg">
+              <label className="fl">Confirm New Password</label>
+              <input className="fi" type="password" value={confPass} onChange={e=>setConfPass(e.target.value)} placeholder="Repeat new password"/>
+            </div>
+            {err && <div className="f-err-main">{err}</div>}
+            <div className="m-actions">
+              <button className="btn-cancel" onClick={()=>{setStep(2);setErr('');}}>← Back</button>
+              <button className="btn-primary" onClick={resetPassword}>🔑 Reset Password</button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: PAPER SEEING REQUEST (Student side)
+// ═══════════════════════════════════════════════════════
+function PaperSeeingRequest({ stu }) {
+  const [subject, setSubject] = useState('');
+  const [reason, setReason] = useState('');
+  const [examType, setExamType] = useState('Final Exam');
+  const [submitted, setSubmitted] = useState(false);
+  const myReqs = usePaperReqs().filter(r=>r.studentId===stu.id);
+
+  const submit = () => {
+    if (!subject) { showToast('⚠ Select a subject first','#f5a623'); return; }
+    if (!reason.trim() || reason.trim().length < 10) { showToast('⚠ Please provide a detailed reason (min 10 chars)','#f5a623'); return; }
+    // Check no duplicate pending request for same subject
+    const dupPending = myReqs.find(r=>r.subject===subject&&r.status==='pending');
+    if (dupPending) { showToast('⚠ You already have a pending request for this subject','#f5a623'); return; }
+    addPaperReq({ studentId:stu.id, studentName:stu.name, roll:stu.roll, cls:stu.cls, subject, examType, reason:reason.trim() });
+    setSubject(''); setReason(''); setSubmitted(true);
+    setTimeout(()=>setSubmitted(false), 3000);
+  };
+
+  const statusInfo = { pending:{icon:'⏳',label:'Pending Review'}, approved:{icon:'✅',label:'Approved'}, rejected:{icon:'❌',label:'Rejected'} };
+
+  return (
+    <div className="paper-req-tab">
+      {/* Request form */}
+      <div className="paper-req-form">
+        <div style={{fontWeight:700,fontSize:'1rem',marginBottom:4}}>📄 Request Paper Viewing</div>
+        <div style={{fontSize:'.78rem',color:'var(--ink2)',marginBottom:16,lineHeight:1.65}}>
+          Submit a request to view your evaluated answer sheet for any subject. Admin will review and respond.
+        </div>
+        <div className="two-col">
+          <div className="fg">
+            <label className="fl">Subject *</label>
+            <select className="fi" value={subject} onChange={e=>setSubject(e.target.value)}>
+              <option value="">-- Select Subject --</option>
+              {Object.keys(stu.marks).map(k=>(
+                <option key={k} value={k.replace(/([A-Z])/g,' $1').trim()}>{k.replace(/([A-Z])/g,' $1').trim()}</option>
+              ))}
+            </select>
+          </div>
+          <div className="fg">
+            <label className="fl">Exam Type</label>
+            <select className="fi" value={examType} onChange={e=>setExamType(e.target.value)}>
+              {['Final Exam','Unit Test 1','Unit Test 2','Mid-Term','Quarterly'].map(t=><option key={t}>{t}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="fg">
+          <label className="fl">Reason for Request *</label>
+          <textarea className="fi" rows={3} value={reason} onChange={e=>setReason(e.target.value)}
+            placeholder="Explain why you want to see your paper (e.g. I believe there may be a marking error in Question 3…)"
+            style={{resize:'vertical',minHeight:80}}/>
+          <div style={{fontSize:'.68rem',color:'var(--muted)',marginTop:4}}>{reason.length}/300 characters</div>
+        </div>
+        <button className="btn-primary" onClick={submit} style={{width:'auto',padding:'10px 28px'}}>
+          {submitted?'✅ Submitted!':'📤 Submit Request'}
+        </button>
+      </div>
+
+      {/* My requests history */}
+      <div style={{fontWeight:700,fontSize:'.9rem',marginBottom:10}}>📋 My Requests ({myReqs.length})</div>
+      {myReqs.length===0 ? (
+        <div className="req-empty">📭 No requests yet. Submit your first paper viewing request above.</div>
+      ) : (
+        myReqs.map(r=>(
+          <div key={r.id} className="req-card">
+            <div className="req-card-hdr">
+              <div className="req-card-meta">
+                <div className="req-card-name">{r.subject} — {r.examType}</div>
+                <div className="req-card-sub">Submitted: {r.createdAt}</div>
+              </div>
+              <span className={`req-status-badge ${r.status}`}>{statusInfo[r.status]?.icon} {statusInfo[r.status]?.label}</span>
+            </div>
+            <div className="req-card-reason">"{r.reason}"</div>
+            {r.adminNote && (
+              <div style={{fontSize:'.78rem',color:'var(--ink2)',padding:'6px 10px',background:'rgba(157,111,245,.07)',borderRadius:'var(--rxs)',borderLeft:'3px solid var(--violet)'}}>
+                <strong>Admin Note:</strong> {r.adminNote}
+              </div>
+            )}
+            {r.resolvedAt && <div style={{fontSize:'.68rem',color:'var(--muted)',marginTop:6}}>Resolved: {r.resolvedAt}</div>}
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: PAPER SEEING ADMIN PANEL
+// ═══════════════════════════════════════════════════════
+function PaperRequestsAdmin() {
+  const reqs = usePaperReqs();
+  const [filter, setFilter] = useState('all');
+  const [noteId, setNoteId] = useState(null);
+  const [note, setNote] = useState('');
+
+  const visible = filter==='all' ? reqs : reqs.filter(r=>r.status===filter);
+  const pending = reqs.filter(r=>r.status==='pending').length;
+
+  const approve = (id) => {
+    updatePaperReq(id, 'approved', note||'Request approved. Please visit the admin office to view your paper.');
+    setNoteId(null); setNote('');
+    showToast('✅ Request approved!', '#12c98a');
+    addNotif('Paper Request Approved', 'A paper viewing request has been approved.', '✅', 'academic');
+  };
+  const reject = (id) => {
+    updatePaperReq(id, 'rejected', note||'Request rejected. Please contact the teacher for clarification.');
+    setNoteId(null); setNote('');
+    showToast('Request rejected.', '#f5476b');
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:14,flexWrap:'wrap'}}>
+        <div style={{fontWeight:700,fontSize:'.9rem'}}>Paper Viewing Requests</div>
+        {pending>0 && <span className="req-status-badge pending">⏳ {pending} Pending</span>}
+      </div>
+      <div className="req-filter-row">
+        {[['all','All'],['pending','⏳ Pending'],['approved','✅ Approved'],['rejected','❌ Rejected']].map(([v,l])=>(
+          <button key={v} className={`req-filter-btn${filter===v?' on':''}`} onClick={()=>setFilter(v)}>{l}</button>
+        ))}
+      </div>
+      {visible.length===0 ? (
+        <div className="req-empty">📭 {filter==='all'?'No paper viewing requests yet.': `No ${filter} requests.`}</div>
+      ) : (
+        visible.map(r=>(
+          <div key={r.id} className="req-card">
+            <div className="req-card-hdr">
+              <div className="req-card-meta">
+                <div className="req-card-name">{r.studentName} <span style={{color:'var(--blue)',fontFamily:'var(--mono)',fontSize:'.76rem'}}>({r.roll})</span></div>
+                <div className="req-card-sub">{r.cls} · {r.subject} · {r.examType} · {r.createdAt}</div>
+              </div>
+              <span className={`req-status-badge ${r.status}`}>{r.status==='pending'?'⏳':r.status==='approved'?'✅':'❌'} {r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span>
+            </div>
+            <div className="req-card-reason">"{r.reason}"</div>
+            {r.status==='pending' && (
+              <>
+                {noteId===r.id ? (
+                  <div style={{marginTop:8}}>
+                    <textarea className="fi" rows={2} value={note} onChange={e=>setNote(e.target.value)}
+                      placeholder="Add a note for the student (optional)…" style={{resize:'vertical',marginBottom:8,fontSize:'.8rem'}}/>
+                    <div className="req-card-actions">
+                      <button className="req-approve-btn" onClick={()=>approve(r.id)}>✅ Approve</button>
+                      <button className="req-reject-btn" onClick={()=>reject(r.id)}>❌ Reject</button>
+                      <button className="btn-cancel" style={{fontSize:'.74rem',padding:'5px 12px'}} onClick={()=>{setNoteId(null);setNote('');}}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="req-card-actions">
+                    <button className="req-approve-btn" onClick={()=>{setNoteId(r.id);setNote('');}}>✅ Review & Approve</button>
+                    <button className="req-reject-btn" onClick={()=>{setNoteId(r.id);setNote('');}}>❌ Review & Reject</button>
+                  </div>
+                )}
+              </>
+            )}
+            {r.adminNote && <div style={{fontSize:'.78rem',color:'var(--ink2)',padding:'6px 10px',background:'rgba(157,111,245,.07)',borderRadius:'var(--rxs)',borderLeft:'3px solid var(--violet)',marginTop:8}}><strong>Note sent:</strong> {r.adminNote}</div>}
+            {r.resolvedAt && <div style={{fontSize:'.68rem',color:'var(--muted)',marginTop:6}}>Resolved: {r.resolvedAt}</div>}
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: NOTIFICATION PANEL
+// ═══════════════════════════════════════════════════════
+function NotifPanel({ open, onClose }) {
+  const notifs = useNotifs();
+  const unread = notifs.filter(n=>n.u).length;
+  const [filter, setFilter] = useState('all');
+
+  if (!open) return null;
+
+  const visible = filter==='all' ? notifs : filter==='unread' ? notifs.filter(n=>n.u) : notifs.filter(n=>n.cat===filter);
+
+  return (
+    <div className="notif-panel open">
+      <div className="np-hdr">
+        <span className="np-title">
+          🔔 Notifications
+          {unread>0 && <span style={{marginLeft:6,background:'var(--rose)',color:'#fff',fontSize:'.6rem',fontWeight:700,padding:'1px 6px',borderRadius:50}}>{unread}</span>}
+        </span>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          {unread>0 && <button style={{background:'none',border:'none',color:'var(--blue)',fontSize:'.7rem',cursor:'pointer',fontWeight:600}} onClick={markAllNotifRead}>Mark all read</button>}
+          {notifs.length>0 && <button style={{background:'none',border:'none',color:'var(--rose)',fontSize:'.7rem',cursor:'pointer',fontWeight:600}} onClick={clearAllNotifs}>Clear all</button>}
+          <button className="np-close" onClick={onClose}>✕</button>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:4,padding:'8px 12px',borderBottom:'1px solid var(--border)',flexWrap:'wrap'}}>
+        {['all','unread','academic','admin','attendance','alert'].map(f=>(
+          <button key={f} onClick={()=>setFilter(f)} style={{
+            padding:'2px 8px',borderRadius:50,fontSize:'.65rem',fontWeight:700,cursor:'pointer',
+            background:filter===f?'rgba(77,141,255,.15)':'transparent',
+            border:filter===f?'1px solid var(--blue)':'1px solid var(--border)',
+            color:filter===f?'var(--blue)':'var(--muted)',textTransform:'capitalize'
+          }}>{f}</button>
+        ))}
+      </div>
+      <div className="np-list">
+        {visible.length===0 && <div style={{padding:24,textAlign:'center',color:'var(--muted)',fontSize:'.82rem'}}>No notifications{filter!=='all'?' in this category':''} 🎉</div>}
+        {visible.map((n)=>(
+          <div key={n.id} className="np-item" onClick={()=>markNotifRead(n.id)} style={{opacity:n.u?1:.65}}>
+            <div style={{width:32,height:32,borderRadius:8,background:`${CAT_COLORS[n.cat]||'var(--blue)'}18`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1rem',flexShrink:0}}>{n.icon}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div className="np-ititle" style={{display:'flex',alignItems:'center',gap:6}}>
+                {n.t}
+                {n.u && <span style={{width:6,height:6,borderRadius:'50%',background:'var(--blue)',display:'inline-block',flexShrink:0}}/>}
+              </div>
+              <div className="np-isub">{n.s}</div>
+              <div style={{fontSize:'.66rem',color:'var(--muted)',marginTop:2}}>{n.tm}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{padding:'10px 14px',borderTop:'1px solid var(--border)',fontSize:'.7rem',color:'var(--muted)',textAlign:'center'}}>
+        {notifs.length} total · {unread} unread
+      </div>
+    </div>
+  );
+}
+
+function NotifBell({ onClick }) {
+  const notifs = useNotifs();
+  const unread = notifs.filter(n=>n.u).length;
+  return (
+    <div className="tb-icon-btn" onClick={onClick} title="Notifications" style={{position:'relative'}}>
+      <span>🔔</span>
+      {unread>0 && <span className="notif-dot" style={{background:'var(--rose)',minWidth:14,height:14,fontSize:'.52rem',display:'flex',alignItems:'center',justifyContent:'center'}}>{unread>9?'9+':unread}</span>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: ADMIN DASHBOARD
+// ═══════════════════════════════════════════════════════
+function AdminDash() {
+  const { state, dispatch, goTo } = useApp();
+  const [section, setSection] = useState('overview');
+  const [addModal, setAddModal] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [viewId, setViewId] = useState(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  const notifCount = useNotifs().filter(n=>n.u).length;
+  const paperReqCount = usePaperReqs().filter(r=>r.status==='pending').length;
+  const sections = [
+    { id:'overview', icon:'📊', label:'Overview' },
+    { id:'students', icon:'🎓', label:'Students' },
+    { id:'marks', icon:'📝', label:'Marks Entry' },
+    { id:'attendance', icon:'📅', label:'Attendance' },
+    { id:'analytics', icon:'📈', label:'Analytics' },
+    { id:'toppers', icon:'🏆', label:'Toppers' },
+    { id:'paperreqs', icon:'📄', label:'Paper Requests', badge: paperReqCount },
+    { id:'search', icon:'🔍', label:'Search' },
+    { id:'react', icon:'⚛️', label:'React Demo' },
+    { id:'settings', icon:'⚙️', label:'Settings' },
+  ];
+
+  const exportSavedHTML = () => {
+    const src = document.documentElement.outerHTML;
+    const blob = new Blob([src], { type:'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'EduResult_React_saved.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    showToast('💾 Saved HTML downloaded!','#00d4b4');
+  };
+
+  const sectionTitles = { overview:'Dashboard Overview', students:'Student Records', marks:'Marks Entry', attendance:'📅 Attendance Management', analytics:'Class Analytics', toppers:'🏆 Toppers & Leaderboard', paperreqs:'📄 Paper Viewing Requests', search:'🔍 Quick Search', react:'⚛️ React Concepts Demo', settings:'⚙️ Settings' };
+
+  return (
+    <div className="page-full">
+      <Topbar badge="Admin" badgeClass="badge-a" rightSlot={
+        <>
+          <NotifBell onClick={()=>setNotifOpen(o=>!o)}/>
+          <button className="tb-btn" onClick={()=>document.getElementById('kbd-overlay').classList.add('open')} style={{fontFamily:'var(--mono)',fontSize:'.7rem'}}>⌨️ ?</button>
+          <button className="tb-btn" onClick={exportSavedHTML} style={{borderColor:'var(--cyan)',color:'var(--cyan)'}}>💾 Save File</button>
+          <button className="tb-btn" onClick={()=>goTo('landing')}>Logout</button>
+        </>
+      }/>
+      <div className="admin-shell">
+        <div className="sidebar">
+          <div className="sb-sect">Main</div>
+          {sections.slice(0,4).map(s=>(
+            <div key={s.id} className={`sb-item${section===s.id?' on':''}`} onClick={()=>setSection(s.id)}>
+              <span className="sb-ico">{s.icon}</span>{s.label}
+            </div>
+          ))}
+          <div className="sb-sect">Reports</div>
+          {sections.slice(4,7).map(s=>(
+            <div key={s.id} className={`sb-item${section===s.id?' on':''}`} onClick={()=>setSection(s.id)} style={{position:'relative'}}>
+              <span className="sb-ico">{s.icon}</span>{s.label}
+              {s.badge>0 && <span style={{marginLeft:'auto',background:'var(--amber)',color:'#000',fontSize:'.58rem',fontWeight:800,padding:'1px 6px',borderRadius:50,minWidth:18,textAlign:'center'}}>{s.badge}</span>}
+            </div>
+          ))}
+          <div className="sb-sect">Tools</div>
+          {sections.slice(7).map(s=>(
+            <div key={s.id} className={`sb-item${section===s.id?' on':''}`} onClick={()=>setSection(s.id)}>
+              <span className="sb-ico">{s.icon}</span>{s.label}
+            </div>
+          ))}
+        </div>
+        <div className="admin-main">
+          <div className="a-title">{sectionTitles[section]}</div>
+          {section==='overview' && <OverviewSection/>}
+          {section==='students' && <StudentsSection onAdd={()=>setAddModal(true)} onEdit={id=>setEditId(id)} onView={id=>setViewId(id)}/>}
+          {section==='marks' && <MarksSection/>}
+          {section==='attendance' && <AttMgmtSection/>}
+          {section==='analytics' && <AnalyticsSection/>}
+          {section==='toppers' && <ToppersSection/>}
+          {section==='paperreqs' && <PaperRequestsAdmin/>}
+          {section==='search' && <QuickSearchSection onView={id=>setViewId(id)}/>}
+          {section==='react' && <ReactDemoSection/>}
+          {section==='settings' && <SettingsSection/>}
+        </div>
+      </div>
+      <NotifPanel open={notifOpen} onClose={()=>setNotifOpen(false)}/>
+      {(addModal||editId) && <StudentModal editId={editId} onClose={()=>{setAddModal(false);setEditId(null);}}/>}
+      {viewId && <ViewStudentModal stuId={viewId} onClose={()=>setViewId(null)}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT: PUBLIC ANALYTICS
+// ═══════════════════════════════════════════════════════
+function PublicAnalytics() {
+  const { state, goTo } = useApp();
+  const { students, passMark } = state;
+  const total = students.length;
+  const avgs = students.map(s=>avg(s.marks));
+  const cAvg = avgs.length ? Math.round(avgs.reduce((a,b)=>a+b,0)/avgs.length) : 0;
+  const passed = students.filter(s=>isPass(s,passMark)).length;
+  const grd = {'A+':0,'A':0,'B+':0,'B':0,'C':0,'D':0,'F':0};
+  students.forEach(s=>{const g2=grade(avg(s.marks));grd[g2]=(grd[g2]||0)+1;});
+  const gc = {'A+':col(95),'A':col(85),'B+':col(75),'B':col(65),'C':col(55),'D':col(45),'F':col(20)};
+  const sorted = [...students].sort((a,b)=>avg(b.marks)-avg(a.marks)).slice(0,5);
+  const rc = ['g','s','b'];
+  const subAvgs = SUBJECTS.map(sub=>total?Math.round(students.reduce((s2,s)=>s2+(s.marks[subKey(sub)]||0),0)/total):0);
+
+  return (
+    <div className="page-full">
+      <Topbar badge="Analytics" badgeClass="badge-n" rightSlot={
+        <button className="tb-btn" onClick={()=>goTo('landing')}>← Back</button>
+      }/>
+      <div className="pub-body">
+        <div className="pg-hdr anim-fadeUp">
+          <div><div className="pg-title">Public Analytics</div><div className="pg-sub">Class performance overview</div></div>
+        </div>
+        <div className="stat-grid">
+          <AnimatedStatCard icon="🎓" label="Students" value={total} delay={0}/>
+          <AnimatedStatCard icon="📊" label="Class Avg" value={`${cAvg}%`} color={col(cAvg)} delay={.05}/>
+          <AnimatedStatCard icon="✅" label="Pass Rate" value={`${total?Math.round(passed/total*100):0}%`} color="var(--green)" delay={.1}/>
+          <AnimatedStatCard icon="📚" label="Subjects" value={SUBJECTS.length} delay={.15}/>
+        </div>
+        <div className="two-col">
+          <div className="card">
+            <div className="card-hdr"><span className="card-hdr-title">Grade Distribution</span></div>
+            <div className="card-body">
+              {Object.entries(grd).map(([g2,c])=>(
+                <div key={g2} className="dist-row">
+                  <div className="dist-lbl" style={{color:gc[g2]}}>{g2}</div>
+                  <div className="dist-track"><div className="dist-fill" style={{width:`${total?c/total*100:0}%`,background:gc[g2]}}>{c>0?c:''}</div></div>
+                  <div className="dist-cnt">{c}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-hdr"><span className="card-hdr-title">Top 5 Leaderboard</span></div>
+            <div className="card-body" style={{padding:'0 16px'}}>
+              {sorted.map((s,i)=>{
+                const a=avg(s.marks);
+                return (
+                  <div key={s.id} className="lb-row anim-slideRight" style={{animationDelay:`${i*.05}s`}}>
+                    <div className={`lb-rank${rc[i]?' '+rc[i]:''}`}>{i+1}</div>
+                    <div className="lb-name">{s.name} <span style={{color:'var(--muted)',fontSize:'.72rem'}}>{s.cls}</span></div>
+                    <div className="lb-bar"><div className="lb-fill" style={{width:`${a}%`}}/></div>
+                    <div className="lb-pct" style={{color:col(a)}}>{a}%</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-hdr"><span className="card-hdr-title">Subject Averages Chart</span></div>
+          <div className="canvas-wrap">
+            <BarChart labels={SUBJECTS} values={subAvgs} title="Class Subject Averages" id="pub-canvas"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// CSV DOWNLOAD UTILITY
+// ═══════════════════════════════════════════════════════
+window.dl = (content, name) => {
+  const b = new Blob([content], {type:'text/csv'}), u = URL.createObjectURL(b);
+  const a = document.createElement('a'); a.href=u; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(u); showToast('📥 Downloaded!','#4d8dff');
+};
+
+
+// ═══════════════════════════════════════════════════════
+// PDF EXPORT UTILITIES  (jsPDF)
+// ═══════════════════════════════════════════════════════
+function buildStudentPDF(stu, schoolName, academicYear, passMark, students) {
+  if (!window.jspdf) { showToast('⚠ PDF library not loaded','#f5a623'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const a = avg(stu.marks), g = grade(a), pass = isPass(stu, passMark);
+  const total = Object.values(stu.marks).reduce((s,v)=>s+v,0);
+  const rank = getRank(stu, students);
+  // Header
+  doc.setFillColor(11,16,35); doc.rect(0,0,210,30,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(15); doc.setFont('helvetica','bold');
+  doc.text('EduResult Pro — Student Report Card', 105, 12, {align:'center'});
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text(`${schoolName} | ${academicYear}`, 105, 20, {align:'center'});
+  // Student info
+  doc.setTextColor(0,0,0); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text(stu.name, 14, 40);
+  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,120);
+  doc.text(`Roll: ${stu.roll}  |  Class: ${stu.cls}  |  Gender: ${stu.gender}  |  Category: ${stu.cat||'General'}`, 14, 47);
+  if(stu.email) doc.text(`Email: ${stu.email}  |  Phone: ${stu.phone||'N/A'}`, 14, 53);
+  // Stat boxes
+  const stats=[[`${a}%`,'Overall Avg'],[g,'Grade'],[pass?'PASS':'FAIL','Result'],[`#${rank}`,'Rank'],[`${total}`,'Total Marks']];
+  stats.forEach(([v,l],i)=>{
+    const x=14+i*38;
+    doc.setFillColor(245,247,255); doc.roundedRect(x,58,36,16,2,2,'F');
+    doc.setTextColor(30,140,80); doc.setFontSize(10); doc.setFont('helvetica','bold');
+    doc.text(v,x+18,67,{align:'center'});
+    doc.setTextColor(120,130,160); doc.setFontSize(7); doc.setFont('helvetica','normal');
+    doc.text(l,x+18,72,{align:'center'});
+  });
+  // Table header
+  let y=84;
+  doc.setFillColor(30,37,64); doc.rect(14,y,182,8,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  const xs=[14,76,96,118,140,162];
+  ['Subject','Max','Obtained','%','Grade','Status'].forEach((h,i)=>doc.text(h,xs[i]+2,y+5.5));
+  y+=8;
+  Object.keys(stu.marks).forEach((k,idx)=>{
+    const m=stu.marks[k], pct=Math.round(m/MAX_MARK*100), g2=grade(pct);
+    doc.setFillColor(idx%2===0?245:255,idx%2===0?247:255,255);
+    doc.rect(14,y,182,8,'F');
+    doc.setTextColor(30,35,60); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+    [k.replace(/([A-Z])/g,' $1').trim(),MAX_MARK,m,pct+'%',g2,m>=passMark?'Pass':'Fail'].forEach((v,j)=>doc.text(String(v),xs[j]+2,y+5.5));
+    y+=8;
+  });
+  y+=6;
+  doc.setFontSize(8); doc.setTextColor(120,130,160);
+  doc.text(`Generated by EduResult Pro on ${new Date().toLocaleDateString('en-IN')}`,105,y,{align:'center'});
+  doc.save(`${stu.roll}_ResultCard.pdf`);
+  showToast('📄 PDF downloaded!','#12c98a');
+}
+
+function exportAdminPDF(students, schoolName, academicYear, passMark) {
+  if (!window.jspdf) { showToast('⚠ PDF library not loaded','#f5a623'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape');
+  doc.setFillColor(11,16,35); doc.rect(0,0,297,22,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('EduResult Pro — Class Report', 148, 10, {align:'center'});
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text(`${schoolName} | ${academicYear}`, 148, 17, {align:'center'});
+  let y=30;
+  doc.setFillColor(30,37,64); doc.rect(10,y,277,8,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+  const hdrs=['Roll','Name','Class','Maths','Sci','Eng','SSt','Hindi','CS','Total','Avg%','Grade','Status'];
+  const xs=[10,28,62,76,92,106,120,134,148,163,178,193,207];
+  hdrs.forEach((h,i)=>doc.text(h,xs[i]+1,y+5.5));
+  y+=8;
+  students.forEach((s,idx)=>{
+    const mv=[s.marks.Mathematics,s.marks.Science,s.marks.English,s.marks.SocialStudies,s.marks.Hindi,s.marks.ComputerScience];
+    const tot=mv.reduce((a,b)=>a+b,0), a2=Math.round(tot/6), g2=grade(a2);
+    doc.setFillColor(idx%2===0?245:255,idx%2===0?247:255,255);
+    doc.rect(10,y,277,8,'F');
+    doc.setTextColor(30,35,60); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+    [s.roll,s.name,s.cls,...mv,tot,a2+'%',g2,isPass(s,passMark)?'Pass':'Fail'].forEach((v,j)=>doc.text(String(v),xs[j]+1,y+5.5));
+    y+=8;
+    if(y>185){doc.addPage('landscape');y=20;}
+  });
+  doc.save('class_report.pdf');
+  showToast('📄 Class PDF downloaded!','#12c98a');
+}
+
+// ═══════════════════════════════════════════════════════
+// ROOT APP
+// ═══════════════════════════════════════════════════════
+function App() {
+  const { state } = useApp();
+  const pages = {
+    'landing': <Landing/>,
+    'student-login': <StudentLogin/>,
+    'student-dash': <StudentDash/>,
+    'admin-login': <AdminLogin/>,
+    'admin-dash': <AdminDash/>,
+    'analytics': <PublicAnalytics/>,
+  };
+  return <div id="app-inner">{pages[state.page] || <Landing/>}</div>;
+}
+
+// ═══════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS (global, outside React)
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown', function(e) {
+  const tag = document.activeElement.tagName;
+  const typing = tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT';
+  const kbdOpen = document.getElementById('kbd-overlay').classList.contains('open');
+  if (e.key==='Escape') { document.getElementById('kbd-overlay').classList.remove('open'); return; }
+  if ((e.key==='?') && !typing && !kbdOpen) { e.preventDefault(); document.getElementById('kbd-overlay').classList.add('open'); return; }
+  if (kbdOpen) return;
+  if (e.altKey && !e.ctrlKey) {
+    switch(e.key.toLowerCase()) {
+      case 't': e.preventDefault(); document.body.classList.toggle('light'); break;
+    }
+  }
+  if (e.ctrlKey && e.shiftKey) {
+    if (e.key==='P') { e.preventDefault(); window.print(); }
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// MOUNT
+// ═══════════════════════════════════════════════════════
+const root = ReactDOM.createRoot(document.getElementById('app'));
+root.render(
+  <AppProvider>
+    <App/>
+  </AppProvider>
+);
+
+// Hide loader
+setTimeout(() => document.getElementById('root-loader').classList.add('done'), 1200);
+</script>
+
+<!-- ZOOM WIDGET -->
+<div id="zoom-widget" title="Zoom (Ctrl +/-)">
+  <button class="zoom-btn" id="zoom-out-btn" title="Zoom Out (Ctrl-)">−</button>
+  <span class="zoom-pct" id="zoom-pct-label">100%</span>
+  <button class="zoom-btn" id="zoom-in-btn"  title="Zoom In (Ctrl+)">+</button>
+  <button class="zoom-btn" id="zoom-reset" title="Reset Zoom (Ctrl+0)" style="font-size:.55rem;width:30px;border-radius:50px;">RST</button>
+</div>
+
+<script>
+// ── ZOOM CONTROL (vanilla JS, outside React) ─────────────────
+(function(){
+  const STEPS = [50,60,70,80,90,100,110,120,130,140,150,175,200];
+  let zoomIdx = STEPS.indexOf(100);  // default 100%
+
+  const appInner = () => document.getElementById('app-inner') || document.getElementById('app');
+  const label    = () => document.getElementById('zoom-pct-label');
+
+  function applyZoom(){
+    const pct = STEPS[zoomIdx];
+    const el = appInner();
+    if(el){
+      el.style.transformOrigin = 'top center';
+      el.style.transform       = `scale(${pct/100})`;
+      // Adjust document height so scrollbar works correctly
+      el.style.width           = pct <= 100 ? '100%' : `${10000/pct}%`;
+    }
+    if(label()) label().textContent = pct + '%';
+    try{ localStorage.setItem('er_zoom', zoomIdx); }catch(e){}
+  }
+
+  function zoomIn () { if(zoomIdx < STEPS.length-1){ zoomIdx++; applyZoom(); } }
+  function zoomOut() { if(zoomIdx > 0)             { zoomIdx--; applyZoom(); } }
+  function zoomReset(){ zoomIdx = STEPS.indexOf(100); applyZoom(); }
+
+  // Restore saved zoom
+  try{
+    const saved = parseInt(localStorage.getItem('er_zoom'));
+    if(!isNaN(saved) && saved >= 0 && saved < STEPS.length) zoomIdx = saved;
+  }catch(e){}
+
+  // Run after React mounts
+  setTimeout(applyZoom, 1300);
+
+  // Button events
+  document.getElementById('zoom-in-btn') .addEventListener('click', zoomIn);
+  document.getElementById('zoom-out-btn').addEventListener('click', zoomOut);
+  document.getElementById('zoom-reset')  .addEventListener('click', zoomReset);
+
+  // Keyboard shortcuts: Ctrl+= / Ctrl+- / Ctrl+0
+  document.addEventListener('keydown', function(e){
+    if(!e.ctrlKey) return;
+    const tag = document.activeElement.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA') return;
+    if(e.key==='+' || e.key==='='){ e.preventDefault(); zoomIn();    return; }
+    if(e.key==='-' || e.key==='_'){ e.preventDefault(); zoomOut();   return; }
+    if(e.key==='0')                { e.preventDefault(); zoomReset(); return; }
+  });
+
+  // Mouse wheel + Ctrl
+  document.addEventListener('wheel', function(e){
+    if(!e.ctrlKey) return;
+    e.preventDefault();
+    if(e.deltaY < 0) zoomIn(); else zoomOut();
+  }, { passive: false });
+
+  // Re-apply after React navigation (poll lightly)
+  let _last = '';
+  setInterval(()=>{
+    const cur = (document.getElementById('app-inner')||{}).style?.transform||'';
+    if(cur !== `scale(${STEPS[zoomIdx]/100})`){ applyZoom(); }
+  }, 800);
+})();
+</script>
+</body>
+</html>
