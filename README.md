@@ -1,5 +1,12 @@
 # 🎓 Smart Academic Result Management System
 
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
+
+A responsive web-based academic result management system developed using **React, JavaScript, HTML5, and CSS3**. The application enables efficient management of student academic records through an intuitive interface with CRUD functionality.
+
 A responsive web-based academic result management system developed using **React, JavaScript, HTML5, and CSS3**. The application enables efficient management of student academic records through an intuitive interface with CRUD functionality.
 
 ---
@@ -105,6 +112,12 @@ http://localhost:3000
 - Cloud deployment
 
 ---
+
+## 🌐 Live Demo
+
+🚧 Coming Soon
+
+The application will be deployed soon using Vercel or Netlify.
 
 ## 👨‍💻 Author
 
