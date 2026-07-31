@@ -1,4 +1,10 @@
-# Smart Academic Result Management System
+# 🎓 Smart Academic Result Management System
+
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?logo=javascript)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 A responsive React 18 web application for end-to-end academic result management, with dedicated **Student** and **Administrator** dashboards.
 
