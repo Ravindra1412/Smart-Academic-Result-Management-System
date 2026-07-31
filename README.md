@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+ 
 # Smart Academic Result Management System
 
 A responsive React 18 web application for end-to-end academic result management, with dedicated **Student** and **Administrator** dashboards.
@@ -7,7 +7,7 @@ A responsive React 18 web application for end-to-end academic result management,
 - Student & Admin authentication (with forgot-password flows)
 - CRUD operations on student records via React Hooks (`useState`, `useEffect`, `useReducer`)
 - Marks entry, grading, and subject-wise analytics (Canvas charts)
-=======
+ 
 # 🎓 Smart Academic Result Management System
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
@@ -37,7 +37,7 @@ A responsive React 18 web application for end-to-end academic result management,
 - Student & Admin authentication (with forgot-password flows)
 - CRUD operations on student records via React Hooks (`useState`, `useEffect`, `useReducer`)
 - Marks entry, grading, and subject-wise analytics (Chart.js visualizations)
->>>>>>> 1577d48b09c347b2669b8c8e2822163553912a68
+ 
 - 6-month attendance tracking with calendar view
 - Class leaderboard & subject toppers
 - Paper-viewing request workflow (student ↔ admin)
@@ -69,17 +69,20 @@ Smart-Academic-Result-Management-System/
 ├── package.json
 └── README.md
 ```
+## 🌐 Live Demo
+**Live Website:**
+https://smart-academic-result-management-system-nygi-yhhilnakr.vercel.app
 
 ## 🚀 Getting Started
 
-<<<<<<< HEAD
+ 
 ```bash
 npm install
 npm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-=======
+ 
 ### Clone the Repository
 
 ```bash
@@ -109,7 +112,7 @@ The application will run locally at:
 ```text
 http://localhost:3000
 ```
->>>>>>> 1577d48b09c347b2669b8c8e2822163553912a68
+ 
 
 ### Build for production
 
@@ -118,13 +121,13 @@ npm run build
 ```
 
 ## 🔑 Demo Credentials
-<<<<<<< HEAD
+ 
 - **Student:** Roll `STU001` / Password `2003`
 - **Admin:** Username `admin` / Password `Admin@2024`
 
 ## 🛠 Tech Stack
 React 18 · Context API · `useReducer` · Custom Hooks · HTML5 · CSS3 · jsPDF
-=======
+ 
 
 ### 👨‍🎓 Student Login
 ```
@@ -184,4 +187,4 @@ Password: admin123
 - GitHub: [Ravindra1412](https://github.com/Ravindra1412)
 - LinkedIn: [Ravindra Swami](https://www.linkedin.com/in/ravindra-swami-2675b0324)
 
->>>>>>> 1577d48b09c347b2669b8c8e2822163553912a68
+ 
