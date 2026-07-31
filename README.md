@@ -8,36 +8,18 @@
 
 A responsive React 18 web application for end-to-end academic result management, with dedicated **Student** and **Administrator** dashboards.
 
+**This project was developed to simplify academic result management by providing separate dashboards for students and administrators, enabling efficient record management, analytics, and report generation.**
+
+
 ## 📑 Table of Contents
 
 - [✨ Features](#-features)
 - [📂 Project Structure](#-project-structure)
 - [🚀 Getting Started](#-getting-started)
 - [🔑 Demo Credentials](#-demo-credentials)
-- ## 📸 Screenshots
-
-### Student Dashboard
-
-![Student Dashboard](https://github.com/user-attachments/assets/54f667da-d359-4fcb-9b8f-c70e832c2452)
-
----
-
-### Student Records
-
-![Student Records](https://github.com/user-attachments/assets/09b5829f-3f14-4494-bc88-a38ac39a96b6)
-
----
-
-### Result Management
-
-![Result Management](https://github.com/user-attachments/assets/43b4094e-da36-465b-b574-c3823ecb2979)
-
----
-
-### Responsive Interface
-
-![Responsive Interface](https://github.com/user-attachments/assets/ce32d8d4-ffa6-48e2-a51e-a2bb4fa4b3ba)
-- [🛠 Tech Stack](#-tech-stack)
+- [📸 Screenshots](#-screenshots)
+-  [🛠 Tech Stack](#-tech-stack)
+- [🚀 Future Enhancements](#-future-enhancements)
 - [👨‍💻 Author](#-author)
 
 ## ✨ Features
@@ -78,28 +60,31 @@ Smart-Academic-Result-Management-System/
 
 ## 🚀 Getting Started
 
-1. Clone the repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/Ravindra1412/Smart-Academic-Result-Management-System.git
 ```
 
-2. Navigate to the project
+### Navigate to the Project
 
 ```bash
 cd Smart-Academic-Result-Management-System
 ```
 
-3. Install dependencies
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-4. Start the development server
+### Run the Development Server
 
 ```bash
 npm start
+```
+
+
 ```
 
 The application will run locally at:
@@ -118,5 +103,49 @@ npm run build
 - **Student:** Roll `STU001` / Password `2003`
 - **Admin:** Username `admin` / Password `Admin@2024`
 
+## 📸 Screenshots
+
+### Student Dashboard
+
+![Student Dashboard](https://github.com/user-attachments/assets/54f667da-d359-4fcb-9b8f-c70e832c2452)
+
+### Student Records
+
+![Student Records](https://github.com/user-attachments/assets/09b5829f-3f14-4494-bc88-a38ac39a96b6)
+
+### Result Management
+
+![Result Management](https://github.com/user-attachments/assets/43b4094e-da36-465b-b574-c3823ecb2979)
+
+### Responsive Interface
+
+![Responsive Interface](https://github.com/user-attachments/assets/ce32d8d4-ffa6-48e2-a51e-a2bb4fa4b3ba)
+
 ## 🛠 Tech Stack
-React 18 · Context API · `useReducer` · Custom Hooks · HTML5 · CSS3 · jsPDF
+
+- React 18
+- JavaScript (ES6)
+- HTML5
+- CSS3
+- Context API
+- React Hooks (`useState`, `useEffect`, `useReducer`)
+- jsPDF
+- Git & GitHub
+
+---
+
+## 🚀 Future Enhancements
+
+- User authentication with JWT
+- Database integration (MongoDB/MySQL)
+- Email notifications
+- Cloud deployment
+- Student performance analytics
+
+## 👨‍💻 Author
+
+**Ravindra Swami**
+
+- GitHub: https://github.com/Ravindra1412
+- LinkedIn: https://www.linkedin.com/in/ravindra-swami-2675b0324
+
