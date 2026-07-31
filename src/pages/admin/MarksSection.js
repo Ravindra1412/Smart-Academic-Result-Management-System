@@ -20,7 +20,7 @@ function MarksSection() {
       SUBJECTS.forEach(sub => { mv[subKey(sub)] = stu.marks[subKey(sub)] || 0; });
       setMarkVals(mv);
     }
-  }, [stuId]);
+  }, [stuId, stu]);
 
   useEffect(() => {
     if (!stu) { setPreview(null); return; }

@@ -32,7 +32,7 @@ function ReactDemoSection() {
             <button className="btn-out" onClick={selectRandom}>🎲 Random Student (Props)</button>
           </div>
           <div className="react-demo">
-            <div className="react-demo-title">// App State (useState hooks)</div>
+            <div className="react-demo-title">App State (useState hooks)</div>
             <div className="react-cards">
               <div className="react-comp"><div className="rc-lbl">count (state)</div><div className="rc-val">{count}</div></div>
               <div className="react-comp"><div className="rc-lbl">selectedStudent</div><div className="rc-val" style={{fontSize:'.85rem'}}>{selected?selected.name:'null'}</div></div>
@@ -42,7 +42,7 @@ function ReactDemoSection() {
           </div>
           {selected && (
             <div className="react-demo" style={{marginTop:12}}>
-              <div className="react-demo-title">// StudentCard Component (Props)</div>
+              <div className="react-demo-title">StudentCard Component (Props)</div>
               <div style={{padding:12,background:'var(--surf)',border:'1px solid var(--border)',borderRadius:'var(--rs)'}}>
                 <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
                   <div style={{width:44,height:44,borderRadius:'50%',background:'var(--surf3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem'}}>🎓</div>
