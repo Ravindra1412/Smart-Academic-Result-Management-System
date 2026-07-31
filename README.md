@@ -63,7 +63,7 @@ Smart-Academic-Result-Management-System/
   
 ## 🌐 Live Demo
 
-🔗 [Live Website](https://smart-academic-result-management-system-nygi-yhhilnakr.vercel.app)
+🔗 [Live Website](https://smart-academic-result-management-sy.vercel.app/)
 
 ## 🚀 Getting Started
 
