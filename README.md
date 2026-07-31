@@ -1,14 +1,4 @@
- 
-# Smart Academic Result Management System
-
-A responsive React 18 web application for end-to-end academic result management, with dedicated **Student** and **Administrator** dashboards.
-
-## ✨ Features
-- Student & Admin authentication (with forgot-password flows)
-- CRUD operations on student records via React Hooks (`useState`, `useEffect`, `useReducer`)
-- Marks entry, grading, and subject-wise analytics (Canvas charts)
- 
-# 🎓 Smart Academic Result Management System
+ # 🎓 Smart Academic Result Management System
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?logo=javascript)
@@ -26,6 +16,7 @@ A responsive React 18 web application for end-to-end academic result management,
 
 - [✨ Features](#-features)
 - [📂 Project Structure](#-project-structure)
+- [🌐 Live Demo](#-live-demo)
 - [🚀 Getting Started](#-getting-started)
 - [🔑 Demo Credentials](#-demo-credentials)
 - [📸 Screenshots](#-screenshots)
@@ -36,7 +27,7 @@ A responsive React 18 web application for end-to-end academic result management,
 ## ✨ Features
 - Student & Admin authentication (with forgot-password flows)
 - CRUD operations on student records via React Hooks (`useState`, `useEffect`, `useReducer`)
-- Marks entry, grading, and subject-wise analytics (Chart.js visualizations)
+- Marks entry, grading, and subject-wise analytics (Canvas visualizations)
  
 - 6-month attendance tracking with calendar view
 - Class leaderboard & subject toppers
@@ -69,20 +60,13 @@ Smart-Academic-Result-Management-System/
 ├── package.json
 └── README.md
 ```
+  
 ## 🌐 Live Demo
-**Live Website:**
-https://smart-academic-result-management-system-nygi-yhhilnakr.vercel.app
+
+🔗 [Live Website](https://smart-academic-result-management-system-nygi-yhhilnakr.vercel.app)
 
 ## 🚀 Getting Started
 
- 
-```bash
-npm install
-npm start
-```
-
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
- 
 ### Clone the Repository
 
 ```bash
@@ -114,7 +98,7 @@ http://localhost:3000
 ```
  
 
-### Build for production
+### Build for Production
 
 ```bash
 npm run build
@@ -125,21 +109,6 @@ npm run build
 - **Student:** Roll `STU001` / Password `2003`
 - **Admin:** Username `admin` / Password `Admin@2024`
 
-## 🛠 Tech Stack
-React 18 · Context API · `useReducer` · Custom Hooks · HTML5 · CSS3 · jsPDF
- 
-
-### 👨‍🎓 Student Login
-```
-Email: student@gmail.com
-Password: student123
-```
-
-### 👨‍💼 Administrator Login
-```
-Email: admin@gmail.com
-Password: admin123
-```
 
 ## 📸 Screenshots
 
