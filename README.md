@@ -90,12 +90,14 @@ npm start
 
 The application will run locally at:
 
-```text
+text
 http://localhost:3000
+```
 
+```
 ### Build for production
 
-```bash
+bash
 npm run build
 ```
 
