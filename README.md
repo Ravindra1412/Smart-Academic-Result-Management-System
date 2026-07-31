@@ -26,7 +26,7 @@ A responsive React 18 web application for end-to-end academic result management,
 ## ✨ Features
 - Student & Admin authentication (with forgot-password flows)
 - CRUD operations on student records via React Hooks (`useState`, `useEffect`, `useReducer`)
-- Marks entry, grading, and subject-wise analytics (Canvas charts)
+- Marks entry, grading, and subject-wise analytics (Chart.js visualizations)
 - 6-month attendance tracking with calendar view
 - Class leaderboard & subject toppers
 - Paper-viewing request workflow (student ↔ admin)
@@ -85,19 +85,15 @@ npm install
 npm start
 ```
 
-
-```
-
 The application will run locally at:
 
-text
+```text
 http://localhost:3000
 ```
 
-```
 ### Build for production
 
-bash
+```bash
 npm run build
 ```
 
@@ -158,6 +154,6 @@ Password: admin123
 
 **Ravindra Swami**
 
-- GitHub: https://github.com/Ravindra1412
-- LinkedIn: https://www.linkedin.com/in/ravindra-swami-2675b0324
+- GitHub: [Ravindra1412](https://github.com/Ravindra1412)
+- LinkedIn: [Ravindra Swami](https://www.linkedin.com/in/ravindra-swami-2675b0324)
 
