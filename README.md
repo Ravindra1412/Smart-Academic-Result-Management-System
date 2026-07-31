@@ -13,12 +13,13 @@ A responsive React 18 web application for end-to-end academic result management,
 
 ## 📑 Table of Contents
 
+
 - [✨ Features](#-features)
 - [📂 Project Structure](#-project-structure)
 - [🚀 Getting Started](#-getting-started)
 - [🔑 Demo Credentials](#-demo-credentials)
 - [📸 Screenshots](#-screenshots)
--  [🛠 Tech Stack](#-tech-stack)
+- [🛠 Tech Stack](#-tech-stack)
 - [🚀 Future Enhancements](#-future-enhancements)
 - [👨‍💻 Author](#-author)
 
@@ -102,8 +103,18 @@ npm run build
 ```
 
 ## 🔑 Demo Credentials
-- **Student:** Roll `STU001` / Password `2003`
-- **Admin:** Username `admin` / Password `Admin@2024`
+
+### 👨‍🎓 Student Login
+```
+Email: student@gmail.com
+Password: student123
+```
+
+### 👨‍💼 Administrator Login
+```
+Email: admin@gmail.com
+Password: admin123
+```
 
 ## 📸 Screenshots
 
