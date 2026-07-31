@@ -40,12 +40,35 @@ Smart-Academic-Result-Management-System/
 
 ## 🚀 Getting Started
 
+1. Clone the repository
+
+```bash
+git clone https://github.com/Ravindra1412/Smart-Academic-Result-Management-System.git
+```
+
+2. Navigate to the project
+
+```bash
+cd Smart-Academic-Result-Management-System
+```
+
+3. Install dependencies
+
 ```bash
 npm install
+```
+
+4. Start the development server
+
+```bash
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The application will run locally at:
+
+```text
+http://localhost:3000
+```
 
 ### Build for production
 
