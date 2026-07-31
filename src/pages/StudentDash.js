@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { avg, grade, gClass, grad, isPass, getRank, col, subKey } from '../utils/helpers';
+import { avg, grade, gClass, grad, isPass, getRank, col} from '../utils/helpers';
 import { MAX_MARK, SUBJECTS } from '../utils/constants';
 import { buildStudentPDF } from '../utils/exportUtils';
 import Topbar from '../components/Topbar';
